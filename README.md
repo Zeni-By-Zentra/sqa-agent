@@ -194,9 +194,18 @@ Cada hallazgo incluye: norma citada, clasificación `[AUTO-FIXABLE]` o `[MANUAL]
 
 ---
 
+
 ## Licencia
 
-**Business Source License 1.1** © 2026 Zentra · Jhonatan Ortega · [webzentra.com](https://webzentra.com)
+**MIT License** © 2026 Zentra · Jhonatan Ortega · webzentra.com
+
+Uso comercial, personal, educativo y open-source: **completamente libre**.
+Solo pedimos atribución (mantener el aviso de copyright).
+
+**Excepción Educativa Colombia:** Uso gratuito garantizado para SENA, universidades,
+instituciones técnicas y colegios de Colombia.
+
+Hecho con ❤️ en Colombia 🇨🇴
 
 Uso personal, educativo y proyectos open-source no comerciales: libre.  
 Uso comercial: requiere permiso escrito de Zentra → jhonatan@webzentra.com
