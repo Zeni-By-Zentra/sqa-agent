@@ -206,8 +206,3 @@ Solo pedimos atribución (mantener el aviso de copyright).
 instituciones técnicas y colegios de Colombia.
 
 Hecho con ❤️ en Colombia 🇨🇴
-
-Uso personal, educativo y proyectos open-source no comerciales: libre.  
-Uso comercial: requiere permiso escrito de Zentra → jhonatan@webzentra.com
-
-Ver [LICENSE](LICENSE) para términos completos. El 2030-05-25 la obra pasa a Apache 2.0.
