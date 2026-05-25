@@ -4,8 +4,10 @@
 
 Desarrollado por [Zeni by Zentra](https://github.com/Zeni-By-Zentra) · Jhonatan Ortega · [webzentra.com](https://webzentra.com)
 
-Licensed under the [Business Source License 1.1](LICENSE) © 2026 Zentra · Jhonatan Ortega · webzentra.com  
-Commercial use requires written permission from Zentra.
+**MIT License** © 2026 Zentra · Jhonatan Ortega · webzentra.com
+
+Uso comercial, personal, educativo y open-source: **completamente libre**.
+Solo pedimos atribución (mantener el aviso de copyright).
 
 ---
 
