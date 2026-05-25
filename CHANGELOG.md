@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.1.0 (2026-05-26)
+
+### Correcciones críticas
+- SKILL.md: frontmatter actualizado a v5.0.0 (estaba en v4.0.0) — el agente ahora se identifica correctamente
+- SKILL.md: licencia corregida de Business Source License → MIT (consistente con LICENSE y README)
+
+### Nuevas funcionalidades implementadas en SKILL.md
+- Lógica operativa completa para `--colombia`: detección de tipo de proyecto + normas aplicables + reporte por ente regulador
+- Lógica operativa completa para `--ai-audit`: 26 ítems del checklist + resumen de verificaciones pasadas
+- Lógica operativa completa para `--learn`: sección educativa en cada hallazgo con norma, riesgo y pasos
+- Lógica operativa completa para `--community`: scoring de cumplimiento + niveles Oro/Plata/Bronce + badge
+
+### Nuevos archivos
+- `checklists/colombia-compliance.md` — 32 ítems de normativa colombiana: Ley 1581, 527, 1273, 1266, 1618 + sectores salud/fintech/público
+- `sqa-cli` — Script bash para integración en CI/CD con `--fail-on-critical`
+
+### Documentación mejorada
+- `COMMUNITY.md` — Expandido con guía real de contribución, template de PR, guía de falsos positivos, entorno de desarrollo
+- Tabla de detección en SKILL.md extendida con nuevos tipos: Data Quality, Quality in Use, AI Code Audit, Colombia Compliance
+
 ## v5.0.0 (2026-05-26)
 
 ### Nuevos Checklists

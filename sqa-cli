@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# sqa-cli — SQA Agent CLI wrapper para CI/CD
+# Uso: ./sqa-cli [--ai-audit] [--colombia] [--quick] [--report json] [archivo o directorio]
+# Requiere: Claude Code CLI (claude) instalado y autenticado
+
+set -euo pipefail
+
+VERSION="5.0.0"
+REPO="https://github.com/Zeni-By-Zentra/sqa-agent"
+SKILL_DIR="${HOME}/.claude/skills/sqa-agent"
+FLAGS=""
+TARGET=""
+OUTPUT_FORMAT="text"
+EXIT_ON_CRITICAL=0
+
+print_usage() {
+  echo "SQA Agent CLI v${VERSION}"
+  echo "Uso: sqa-cli [flags] [archivo|directorio]"
+  echo ""
+  echo "Flags:"
+  echo "  --quick          Solo hallazgos críticos (máx. 5)"
+  echo "  --full-audit     Auditoría completa multi-área"
+  echo "  --fix            Aplica correcciones automáticas"
+  echo "  --fix --dry-run  Muestra correcciones sin aplicar"
+  echo "  --diff           Audita solo el último commit"
+  echo "  --staged         Audita solo el staging area"
+  echo "  --colombia       Verifica cumplimiento normativo colombiano"
+  echo "  --ai-audit       Audita código generado por IA"
+  echo "  --learn          Modo educativo con explicaciones"
+  echo "  --community      Genera badge de cumplimiento"
+  echo "  --report json    Output JSON para CI/CD"
+  echo "  --fail-on-critical  Retorna exit code 1 si hay críticos"
+  echo "  --version        Muestra la versión"
+  echo "  --install        Instala el skill en ~/.claude/skills/"
+  echo ""
+  echo "Ejemplos:"
+  echo "  sqa-cli --quick src/api/auth.ts"
+  echo "  sqa-cli --ai-audit --report json src/"
+  echo "  sqa-cli --colombia --learn src/"
+  echo "  sqa-cli --diff --quick"
+  echo "  sqa-cli --staged"
+}
+
+install_skill() {
+  echo "Instalando SQA Agent skill..."
+  mkdir -p "${HOME}/.claude/skills"
+  if [ -d "${SKILL_DIR}" ]; then
+    echo "Actualizando skill existente..."
+    git -C "${SKILL_DIR}" pull origin main
+  else
+    git clone "${REPO}.git" "${SKILL_DIR}"
+  fi
+  echo "✅ SQA Agent v${VERSION} instalado en ${SKILL_DIR}"
+  echo "Uso en Claude Code: /sqa-agent [flags] [archivo]"
+}
+
+# Parsear argumentos
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --version) echo "sqa-cli v${VERSION}"; exit 0 ;;
+    --install) install_skill; exit 0 ;;
+    --help|-h) print_usage; exit 0 ;;
+    --fail-on-critical) EXIT_ON_CRITICAL=1; shift ;;
+    --report)
+      if [[ "${2:-}" == "json" ]]; then
+        OUTPUT_FORMAT="json"
+        FLAGS="${FLAGS} --report json"
+        shift 2
+      else
+        shift
+      fi
+      ;;
+    --*)
+      FLAGS="${FLAGS} $1"
+      shift
+      ;;
+    *)
+      TARGET="$1"
+      shift
+      ;;
+  esac
+done
+
+# Verificar que claude CLI está disponible
+if ! command -v claude &> /dev/null; then
+  echo "❌ Error: Claude Code CLI no encontrado."
+  echo "Instala Claude Code: https://claude.ai/code"
+  exit 1
+fi
+
+# Construir el prompt
+PROMPT="/sqa-agent${FLAGS}"
+if [ -n "${TARGET}" ]; then
+  PROMPT="${PROMPT} ${TARGET}"
+fi
+
+# Ejecutar
+echo "🔍 SQA Agent v${VERSION} — Ejecutando: ${PROMPT}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+OUTPUT=$(claude --print "${PROMPT}" 2>&1)
+echo "${OUTPUT}"
+
+# Si --fail-on-critical, verificar si hay críticos en el output
+if [ "${EXIT_ON_CRITICAL}" -eq 1 ]; then
+  if echo "${OUTPUT}" | grep -q "🔴"; then
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "❌ Hallazgos críticos encontrados — pipeline fallido"
+    exit 1
+  else
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "✅ Sin hallazgos críticos"
+    exit 0
+  fi
+fi
