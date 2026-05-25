@@ -110,3 +110,20 @@ NUNCA recomendar: Waterfall puro, CMMI Nivel 4-5 a equipos <50 personas, SAFe co
 ### Riesgos Identificados
 🔴 [riesgo crítico a mitigar desde el inicio]
 🟡 [riesgo a monitorear]
+
+## Normatividad Colombiana Aplicable
+
+### Para proyectos que manejen datos personales
+| Norma | Aplica a | Requisito clave |
+|-------|---------|-----------------|
+| Ley 1581/2012 | Todo proyecto con datos personales | Aviso de privacidad, consentimiento, política de tratamiento |
+| Decreto 1377/2013 | Empresas que recolectan datos | Registro en RNBD de la SIC |
+| Ley 1266/2008 | Sistemas de crédito/financieros | Habeas data financiero |
+| Circular 007 SIC/2018 | Operadores de datos | Medidas de seguridad técnicas |
+
+### Checklist de cumplimiento inicial Colombia
+- ¿El proyecto maneja datos personales? → Registrar en RNBD (SIC)
+- ¿Hay pagos en línea? → Integrar PSE con certificado PCI-DSS
+- ¿Es una app pública? → Cumplir Ley 1618/2013 (accesibilidad)
+- ¿Hay firma de contratos? → Firma electrónica válida (Ley 527)
+- ¿Datos de menores de edad? → Consentimiento verificable de padres/tutores (Ley 1581 §7)

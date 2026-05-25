@@ -1,5 +1,15 @@
 # Security Audit Checklist — OWASP + ISO/IEC 27001:2022
 
+## Normativa Colombiana de Seguridad
+
+| Norma | Descripción | Requisito |
+|-------|-------------|-----------|
+| Ley 1581/2012 | Habeas Data / Protección de datos personales | Cifrado, control de acceso, auditoría |
+| Circular 007 SIC/2018 | Instrucciones para operadores de datos | Medidas de seguridad técnicas y administrativas |
+| Decreto 1377/2013 | Reglamentación Ley 1581 | Política de tratamiento de datos |
+| Ley 1273/2009 | Delitos informáticos en Colombia | Penaliza acceso no autorizado, daño informático |
+| Resolución 1519/2016 | Estándares para entidades públicas | Seguridad en publicación de información |
+
 ## 1. GESTIÓN DE AUTENTICACIÓN
 
 - [ ] MFA para cuentas privilegiadas (ISO 27001 A.9.4.2)

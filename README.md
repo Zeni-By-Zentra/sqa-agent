@@ -1,4 +1,4 @@
-# SQA Agent v4.0 — Software Quality Assurance
+# SQA Agent v5.0 — Software Quality Assurance
 
 > Agente especialista en calidad de software que aplica normas ISO/IEC 25010, OWASP, ISO 27001, WCAG 2.1 y CMMI de forma práctica y pragmática. 10 checklists especializados cargados dinámicamente desde GitHub. **Audita y corrige.**
 
@@ -40,6 +40,10 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 | `--diff --since main` | Audita cambios vs rama main/master. Para PR reviews completas. |
 | `--staged` | Audita solo el staging area (`git diff --cached`). Para pre-commit hooks. |
 | `--profile` | Análisis de performance: estático siempre + sondeo HTTP si se pasa URL. |
+| `--colombia` | Cumplimiento normativo colombiano (Ley 1581, Circular 007 SIC, Ley 1273, Res. 1519). |
+| `--ai-audit` | Detección de patrones inseguros en código generado por IA (Copilot, ChatGPT, Cursor). |
+| `--community` | Badge de cumplimiento SQA Agent para README del proyecto. |
+| `--learn` | Modo educativo con referencia a la norma aplicable en cada hallazgo. |
 | `--report json` | Output machine-readable JSON para CI/CD integration. |
 
 Los flags son combinables: `--full-audit --fix`, `--diff --quick`, `--profile --report json`.
@@ -110,6 +114,9 @@ El agente detecta automáticamente qué checklist(s) usar. Se cargan desde GitHu
 | [`security.md`](checklists/security.md) | Solicitud explícita de auditoría de seguridad | OWASP Top 10:2021 + API Security:2023 + ISO 27001:2022 |
 | [`performance.md`](checklists/performance.md) | "performance", "lento", "respuesta", URL, `--profile` | ISO/IEC 25010:2023 §4.2.1 + Web Vitals + RAIL Model |
 | [`project-init.md`](checklists/project-init.md) | Descripción de proyecto nuevo | ISO por dominio + CMMI + Metodologías ágiles |
+| [`quality-in-use.md`](checklists/quality-in-use.md) | "calidad en uso", "usabilidad", "satisfacción", "efectividad" | ISO 9126-4 + ISO 25010:2023 §4.1.4 + ISO 25022 |
+| [`ai-generated-code.md`](checklists/ai-generated-code.md) | Código de Copilot, ChatGPT, Cursor, "vibe coding", `--ai-audit` | OWASP Top 10 + Anti-patrones IA + Licencias |
+| [`data-quality.md`](checklists/data-quality.md) | "calidad de datos", "ETL", "migración de datos", "data quality" | ISO/IEC 25012 + Ley 1581/2012 + Ley 1266/2008 |
 
 ---
 
@@ -169,6 +176,22 @@ Cada hallazgo incluye: norma citada, clasificación `[AUTO-FIXABLE]` o `[MANUAL]
 ---
 
 ## Changelog
+
+### v5.0.0 (2026-05-26)
+
+- **Nuevo:** Checklist `quality-in-use.md` — Calidad en Uso: ISO 9126-4, ISO 25010
+- **Nuevo:** Checklist `ai-generated-code.md` — Auditoría de código generado por IA: 26 verificaciones
+- **Nuevo:** Checklist `data-quality.md` — Calidad de Datos: ISO 25012, Ley 1581/2012
+- **Nuevo:** Checklist `performance.md` reescrito — Web Vitals 2024, RAIL, backend, móvil, BD
+- **Nuevo:** Modo `--colombia` — Cumplimiento normativo colombiano
+- **Nuevo:** Modo `--ai-audit` — Detección de patrones inseguros en código de IA
+- **Nuevo:** Modo `--community` — Badge de cumplimiento para README
+- **Nuevo:** Modo `--learn` — Modo educativo con referencia a norma aplicable
+- **Nuevo:** `SECURITY.md` — Política de seguridad y reporte de vulnerabilidades
+- **Nuevo:** `COMMUNITY.md` — Guía de contribución y código de conducta
+- **Actualizado:** `security.md` — Normativa colombiana (Ley 1581, Circular 007 SIC, Ley 1273)
+- **Actualizado:** `project-init.md` — Sección de normatividad colombiana
+- **Actualizado:** `LICENSE` — Excepción Educativa Colombia (SENA, universidades, colegios)
 
 ### v4.0.0 (2026-05-25)
 - **Nuevo:** Modo `--fix` — aplica correcciones mecánicas directamente en código con guardrails explícitos
