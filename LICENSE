@@ -1,65 +1,37 @@
-Business Source License 1.1
+MIT License
 
-Parameters
+Copyright (c) 2026 Zentra · Jhonatan Ortega · webzentra.com
 
-Licensor:             Zentra · Jhonatan Ortega · webzentra.com
-Licensed Work:        SQA Agent Version 3.0.0 or later
-                      © 2026 Zentra · Jhonatan Ortega · webzentra.com
-Additional Use Grant: You may use the Licensed Work for personal, educational,
-                      and non-commercial open-source projects at no charge.
-                      Commercial use (including SaaS products, paid services,
-                      or internal use at for-profit organizations) requires
-                      written permission from Zentra.
-Change Date:          2030-05-25
-Change License:       Apache License, Version 2.0
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-For licensing inquiries: jhonatan@webzentra.com
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ---
 
-Notice
+EXCEPCIÓN EDUCATIVA COLOMBIA
 
-The Business Source License (this document, or the "License") is not an Open
-Source license. However, the Licensed Work will eventually be made available
-under an Open Source License, as stated in this License.
+Se otorga permiso especial a las siguientes instituciones para usar, modificar
+y distribuir este software con fines educativos, manteniendo siempre la
+atribución original:
 
-License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
-"Business Source License" is a trademark of MariaDB Corporation Ab.
+- Servicio Nacional de Aprendizaje (SENA) y todas sus regionales
+- Universidades públicas y privadas de Colombia
+- Instituciones técnicas y tecnológicas colombianas
+- Colegios y escuelas de formación en tecnología en Colombia
 
-Terms
-
-The Licensor hereby grants you the right to copy, modify, create derivative
-works, redistribute, and make non-production use of the Licensed Work. The
-Licensor may make an Additional Use Grant, above, permitting limited
-production use.
-
-Effective on the Change Date, or the fourth anniversary of the first publicly
-available distribution of a specific version of the Licensed Work under this
-License, whichever comes first, the Licensor hereby grants you rights under
-the terms of the Change License, and these terms do not apply to the Licensed
-Work under the Change License.
-
-Grant of Patent License
-
-Subject to the terms and conditions of this License, each Licensor hereby
-grants to you a perpetual, worldwide, non-exclusive, no-charge, royalty-free,
-irrevocable (except as stated in this section) patent license to make, have
-made, use, offer to sell, sell, import, and otherwise transfer the Licensed
-Work, where such license applies only to those patent claims licensable by
-such Licensor that are necessarily infringed by their contribution(s) alone or
-by combination of their contribution(s) with the Licensed Work to which such
-contribution(s) was submitted. If you institute patent litigation against any
-entity (including a cross-claim or counterclaim in a lawsuit) alleging that
-the Licensed Work or a contribution incorporated within the Licensed Work
-constitutes direct or contributory patent infringement, then any patent
-licenses granted to you under this License for that Licensed Work shall
-terminate as of the date such litigation is filed.
-
-Disclaimer
-
-THE LICENSED WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE LICENSED WORK OR THE USE OR OTHER DEALINGS IN THE LICENSED WORK.
+Esta excepción no exime del cumplimiento de la atribución ni de la inclusión
+de este aviso de copyright en todas las copias.
