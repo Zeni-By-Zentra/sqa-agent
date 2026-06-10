@@ -190,6 +190,48 @@ Cada hallazgo incluye: norma citada, clasificación `[AUTO-FIXABLE]` o `[MANUAL]
 
 ---
 
+
+## v6.0.0 (2026-06-10) — Enterprise Edition
+
+Upgrade mayor a QA de nivel enterprise: el agente ahora cubre el ciclo completo, de la planificación de arquitectura al gate de deploy.
+
+### Nuevos modos de ciclo de vida
+- `--plan` — framework de planificación pre-desarrollo. Genera `ARCHITECTURE_PLAN.md` con 8 secciones (matriz de decisión de stack con scoring, modelo de seguridad + threat model STRIDE-lite, borrador de schema de BD, contrato de API, estrategia de deployment, timeline PERT, matriz de riesgos) y gate Definition of Ready que bloquea el inicio de desarrollo si faltan ítems críticos.
+- `--security` — auditoría de seguridad enterprise: OWASP Top 10:2021 ítem por ítem.
+- `--pentest` — checklist de pen-test en 6 fases con comandos reales (recon, auth, IDOR, inyección, lógica de negocio, infra).
+- `--breach-check` — audita el proyecto contra 20 brechas históricas documentadas.
+- `--pagespeed` — Core Web Vitals + presupuesto de performance + medición real/estática.
+- `--a11y`, `--infra`, `--cicd` — módulos dedicados de accesibilidad, infraestructura y CI/CD.
+
+### Nuevos archivos
+- `checklists/pre-dev-planning.md` — framework completo de planificación de arquitectura (discovery, ADRs, stack de referencia Zentra, threat model, schema, API, deploy, PERT, riesgos, Definition of Ready).
+- `checklists/infrastructure.md` — hardening de VPS Hetzner, Nginx, runtime Docker, PM2, Cloudflare, backups/DR, monitoreo y resiliencia, con gotchas reales del stack Zentra.
+- `references/breach-database.md` — base de datos de 20 brechas públicas (Equifax/CVE-2017-5638, Log4Shell, SolarWinds, Capital One, Heartbleed, Colonial Pipeline, Uber, Optus, Marriott, Adobe, LinkedIn/Yahoo, Target, Codecov, event-stream, Tesla, Heartland, TalkTalk, 3CX, MOVEit, Cloudflare/Okta) mapeadas a controles OWASP y al checklist.
+
+### Reescritos
+- `checklists/security.md` — de checklist genérico a OWASP Top 10:2021 ítem por ítem + Parte B con vectores específicos del stack (Next.js incl. CVE-2025-29927, Node/Express, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare/Hetzner) + Parte C supply chain con comandos + Parte D pen-test. Cada control cita su precedente de brecha histórica.
+- `checklists/performance.md` — añadido presupuesto de performance y auditoría `--pagespeed` (frontend Next.js, backend, CDN/caching, medición laboratorio vs campo).
+- `SKILL.md` — v6.0.0: filosofía shift-left, evidencia tipada (CMD/CODE/INF), CVSS por severidad, veredicto de deploy, JSON con stack detectado y breach precedent.
+
+## v5.1.0 (2026-05-26)
+
+### Correcciones críticas
+- SKILL.md: frontmatter actualizado a v5.0.0 (estaba en v4.0.0) — el agente ahora se identifica correctamente
+- SKILL.md: licencia corregida de Business Source License → MIT (consistente con LICENSE y README)
+
+### Nuevas funcionalidades implementadas en SKILL.md
+- Lógica operativa completa para `--colombia`: detección de tipo de proyecto + normas aplicables + reporte por ente regulador
+- Lógica operativa completa para `--ai-audit`: 26 ítems del checklist + resumen de verificaciones pasadas
+- Lógica operativa completa para `--learn`: sección educativa en cada hallazgo con norma, riesgo y pasos
+- Lógica operativa completa para `--community`: scoring de cumplimiento + niveles Oro/Plata/Bronce + badge
+
+### Nuevos archivos
+- `checklists/colombia-compliance.md` — 32 ítems de normativa colombiana: Ley 1581, 527, 1273, 1266, 1618 + sectores salud/fintech/público
+- `sqa-cli` — Script bash para integración en CI/CD con `--fail-on-critical`
+
+### Documentación mejorada
+- `COMMUNITY.md` — Expandido con guía real de contribución, template de PR, guía de falsos positivos, entorno de desarrollo
+- Tabla de detección en SKILL.md extendida con nuevos tipos: Data Quality, Quality in Use, AI Code Audit, Colombia Compliance
 ## Changelog
 
 ### v5.0.0 (2026-05-26)
