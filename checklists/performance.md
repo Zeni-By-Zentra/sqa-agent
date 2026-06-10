@@ -41,3 +41,54 @@
 | PERF-019 | Uso de índices en queries frecuentes | EXPLAIN ANALYZE = Index Scan | 🔴 Crítico |
 | PERF-020 | Tamaño de tabla sin particionado | <= 10M registros | 🟡 Importante |
 | PERF-021 | Vacuuming/Autovacuum configurado | Sí (PostgreSQL) | 🟡 Importante |
+
+---
+
+## PRESUPUESTO DE PERFORMANCE (Performance Budget)
+
+> Acordar el presupuesto en `--plan` y verificarlo en cada deploy. Un presupuesto no medido es una aspiración.
+
+| Recurso | Presupuesto | Severidad si excede |
+|---------|-------------|---------------------|
+| JS inicial (gzipped) | ≤ 170 KB | 🔴 |
+| CSS inicial (gzipped) | ≤ 60 KB | 🟡 |
+| Peso total de la página (sobre el fold) | ≤ 1 MB | 🟡 |
+| Imagen individual | ≤ 200 KB (WebP/AVIF) | 🟡 |
+| Fuentes web | ≤ 2 familias, ≤ 100 KB, `font-display: swap` + preload | 🟡 |
+| Requests en el critical path | ≤ 50 | 🟢 |
+| Time to Interactive (4G, mid-tier mobile) | ≤ 3.5 s | 🔴 |
+
+---
+
+## AUDITORÍA WEB (modo --pagespeed)
+
+### Frontend / Next.js / React-Vite
+- [ ] Bundle analizado (`@next/bundle-analyzer` / `rollup-plugin-visualizer`); sin dependencias pesadas innecesarias (moment→date-fns, lodash completo→imports puntuales)
+- [ ] Code splitting por ruta; `dynamic()`/`React.lazy` para componentes pesados below-the-fold
+- [ ] `next/image` (o equivalente) con `width`/`height` para evitar CLS; formatos WebP/AVIF; lazy loading
+- [ ] Fuentes con `next/font` o `font-display: swap` + `preload` de la fuente del LCP
+- [ ] Sin render-blocking: CSS crítico inline, JS no crítico con `defer`/`async`
+- [ ] Server Components / SSG / ISR usados donde aplica (no enviar JS que no se necesita)
+- [ ] Sin `useEffect` fetch en cascada que retrase el contenido principal
+- [ ] Third-party scripts (analytics, chat widget) con `next/script strategy="lazyOnload"` o diferidos
+- [ ] `prefers-reduced-motion` respetado (también ayuda a INP)
+
+### Backend / API
+- [ ] **N+1 queries = 0** (auditar loops que consultan la BD por iteración)
+- [ ] Índices presentes en columnas de WHERE/JOIN/ORDER frecuentes (`EXPLAIN ANALYZE` = Index Scan, no Seq Scan)
+- [ ] Connection pooling configurado con límites
+- [ ] Respuestas paginadas (cursor) para listas grandes; no devolver miles de filas
+- [ ] Cache (Redis/in-memory) para datos costosos y poco cambiantes
+- [ ] `statement_timeout` para evitar queries que cuelgan el pool
+- [ ] Compresión gzip/brotli activa en Nginx para JSON/text
+
+### CDN / caching / red
+- [ ] Cloudflare cacheando assets estáticos; assets con hash → `Cache-Control: immutable`
+- [ ] HTML/API autenticada con `no-store` (no cachear datos privados)
+- [ ] HTTP/2 o HTTP/3 activo
+- [ ] Imágenes servidas vía CDN con transformación/resize cuando aplica
+
+### Medición (con URL)
+- [ ] Medición real con WebFetch: status, tiempo total, tamaño — 3 repeticiones, promedio + desviación
+- [ ] Recomendar complementar con **PageSpeed Insights** (datos de campo CrUX) y **Lighthouse** (laboratorio)
+- [ ] Separar SIEMPRE en el reporte: dato de **laboratorio** vs **campo** vs **inferido**. Nunca presentar inferencia como medición.

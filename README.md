@@ -1,6 +1,13 @@
-# SQA Agent v5.0 — Software Quality Assurance
+# SQA Agent v6.0 — Software Quality Assurance · Enterprise Edition
 
-> Agente especialista en calidad de software que aplica normas ISO/IEC 25010, OWASP, ISO 27001, WCAG 2.1 y CMMI de forma práctica y pragmática. 10 checklists especializados cargados dinámicamente desde GitHub. **Audita y corrige.**
+> Agente especialista en calidad de software de nivel enterprise. Cubre el ciclo completo: **planifica la arquitectura ANTES del código, audita DURANTE el desarrollo y bloquea el deploy si algo es inseguro.** Aplica OWASP Top 10:2021, OWASP API:2023, ISO/IEC 25010, ISO 27001:2022, WCAG 2.1 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana. 16 checklists + base de datos de 20 brechas históricas, cargados dinámicamente desde GitHub. **Planifica, audita y corrige.**
+
+### Novedades v6
+- **`--plan`** — framework de planificación pre-desarrollo: matriz de decisión de stack, modelo de seguridad, borrador de schema, contrato de API, deployment, timeline PERT, matriz de riesgos y gate Definition of Ready.
+- **`--security` / `--pentest`** — auditoría de seguridad enterprise: OWASP Top 10:2021 ítem por ítem, vectores específicos del stack (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare), escaneo de dependencias y checklist de pen-test.
+- **`--breach-check`** — audita el proyecto contra 20 brechas históricas documentadas (Equifax, Log4Shell, SolarWinds, Capital One, Heartbleed, Colonial Pipeline, Optus…).
+- **`--pagespeed`** — Core Web Vitals + presupuesto de performance + análisis estático y medición real.
+- **`--a11y` / `--infra` / `--cicd`** — módulos dedicados de accesibilidad WCAG 2.1 AA, infraestructura y CI/CD.
 
 Desarrollado por [Zeni by Zentra](https://github.com/Zeni-By-Zentra) · Jhonatan Ortega · [webzentra.com](https://webzentra.com)
 
@@ -29,6 +36,14 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 
 | Flag | Qué hace |
 |------|----------|
+| `--plan` | **Pre-desarrollo:** genera `ARCHITECTURE_PLAN.md` (stack, seguridad, schema, API, deploy, timeline, riesgos) + gate Definition of Ready. |
+| `--security` | Auditoría de seguridad enterprise: OWASP Top 10:2021 + vectores del stack + dependencias. |
+| `--pentest` | Checklist de pen-test guiado con comandos (solo sistemas propios/autorizados). |
+| `--breach-check` | Audita contra 20 brechas históricas documentadas. |
+| `--pagespeed [URL]` | Core Web Vitals + presupuesto de performance + medición real. |
+| `--a11y` | Accesibilidad WCAG 2.1 AA completa + plan de testing manual. |
+| `--infra` | Infraestructura: VPS, Nginx, Docker runtime, PM2, Cloudflare, backups, DR. |
+| `--cicd` | Pipeline: quality gates, secrets en CI, supply chain, deploy/rollback. |
 | *(sin flag)* | Auditoría completa 🔴🟡🟢 |
 | `--quick` | Solo 🔴 Críticos. Máximo 5 hallazgos, < 2 min. Ideal para PR reviews. |
 | `--full-audit` | Multi-área: todos los checklists relevantes + Scorecard + Roadmap por sprints. |
