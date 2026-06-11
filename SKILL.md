@@ -1,9 +1,9 @@
 ---
 name: sqa-agent
-description: Software Quality Assurance Agent v6.0 — Enterprise Edition. ISO/IEC 25010, OWASP Top 10:2021, OWASP API:2023, ISO 27001:2022, WCAG 2.1 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana. Modos --plan (planificación pre-desarrollo), --security (auditoría profunda), --pentest, --breach-check, --pagespeed, --a11y, --infra, --cicd, --quick, --full-audit, --fix, --diff, --staged, --colombia, --ai-audit, --learn, --community. Cubre planificación de arquitectura, seguridad, performance, accesibilidad, código, base de datos, infraestructura y CI/CD.
+description: Software Quality Assurance Agent v6.0.1 — Enterprise Edition. ISO/IEC 25010, OWASP Top 10:2021, OWASP API:2023, OWASP LLM Top 10:2025, ISO 27001:2022, WCAG 2.1 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana. Modos --plan, --security, --pentest, --breach-check, --pagespeed, --a11y, --infra, --cicd, --quick, --full-audit, --fix (risk-based), --diff, --staged, --colombia, --ai-audit, --learn, --community, --meta-audit. Confidence scores, impact graph, test stubs, post-fix audit, LLM injection checks.
 metadata:
   author: Zentra · Jhonatan Ortega · webzentra.com
-  version: "6.0.0"
+  version: "6.0.1"
   license: "MIT © 2026 Zentra · Jhonatan Ortega · webzentra.com"
   argument-hint: <código | descripción | URL | --plan | --security | --pentest | --breach-check | --pagespeed | --a11y | --infra | --cicd | --quick | --full-audit | --fix [--dry-run] [--all] | --diff [SHA] | --staged | --colombia | --ai-audit | --learn | --community | --meta-audit | --report json>
 ---
