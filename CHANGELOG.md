@@ -1,5 +1,37 @@
 # Changelog
 
+## v6.0.1 (2026-06-11) — Risk-based fix + Meta-audit + LLM injection
+
+### Nuevas funcionalidades
+
+- **Risk-based `--fix` permissions** — reemplaza la regla "≤5 líneas" por modelo orientado al riesgo real del cambio:
+  - 🔴 Crítico + Confianza ALTA → confirmación explícita antes de aplicar
+  - 🔴 Crítico + Confianza MEDIA/BAJA → siempre `[MANUAL]` automático
+  - 🟡 Importante + ALTA/MEDIA → dry-run visible, aplica salvo interrupción
+  - 🟢 Sugerencia → aplica directamente sin interrupción
+- **Campo `Confianza` obligatorio** en todos los hallazgos (ALTA/MEDIA/BAJA) — guía el modelo de permisos de `--fix`
+- **Impact graph en `--fix`** — mapea importadores del archivo antes de aplicar. Advertencia explícita si >10 importadores directos.
+- **Test stubs junto a cada corrección** — genera `describe/it` esqueleto con `// TODO` en el archivo de tests más cercano
+- **Auditoría diferencial post-fix** — re-audita archivos modificados + importadores directos tras aplicar. Regresiones como `⚠️ REGRESIÓN POST-FIX`
+- **Nuevo modo `--meta-audit`** — audita los propios checklists del repositorio SQA
+
+### Nuevos archivos
+
+- `checklists/meta-audit.md` — 30 ítems, 6 secciones: vigencia de normas, calidad de ítems, cobertura, falsos positivos, usabilidad, mantenibilidad
+
+### Checklists actualizados
+
+- `checklists/security.md` — nueva sección **Parte E: Inyección en LLMs** (10 controles basados en OWASP LLM Top 10:2025: prompt injection, sensitive info disclosure, system prompt leakage, excessive agency, XSS indirecto vía LLM). Precedentes: Samsung 2023, Bing Chat 2023.
+
+### Cambios en SKILL.md
+
+- `--meta-audit` añadido a la tabla de modos y al bloque "Cómo operar"
+- URL `checklists/meta-audit.md` añadida a la tabla de fetch
+- Formato estándar de hallazgo: campo `Confianza` ahora obligatorio
+- Sección `--fix` reescrita: modelo de permisos basado en riesgo + impact graph + test stubs + post-fix diff
+- Reglas estrictas #19 y #20 añadidas
+- `--report json` v6: nuevos campos `confidence`, `test_stub_generated`, `impact_graph`, `post_fix_regressions`
+
 ## v6.0.0 (2026-06-10) — Enterprise Edition
 
 Upgrade mayor a QA de nivel enterprise: el agente ahora cubre el ciclo completo, de la planificación de arquitectura al gate de deploy.

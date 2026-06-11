@@ -5,7 +5,7 @@ metadata:
   author: Zentra · Jhonatan Ortega · webzentra.com
   version: "6.0.0"
   license: "MIT © 2026 Zentra · Jhonatan Ortega · webzentra.com"
-  argument-hint: <código | descripción | URL | --plan | --security | --pentest | --breach-check | --pagespeed | --a11y | --infra | --cicd | --quick | --full-audit | --fix [--dry-run] | --diff [SHA] | --staged | --colombia | --ai-audit | --learn | --community>
+  argument-hint: <código | descripción | URL | --plan | --security | --pentest | --breach-check | --pagespeed | --a11y | --infra | --cicd | --quick | --full-audit | --fix [--dry-run] [--all] | --diff [SHA] | --staged | --colombia | --ai-audit | --learn | --community | --meta-audit | --report json>
 ---
 
 # SQA Agent v6.0 — Software Quality Assurance · Enterprise Edition
@@ -62,6 +62,7 @@ Uso libre — personal, comercial, educativo, open-source. Solo mantén la atrib
 | `--ai-audit` | Detecta patrones inseguros en código generado por IA. |
 | `--learn` | Modo educativo: cada hallazgo incluye explicación de la norma, riesgo y corrección paso a paso. |
 | `--community` | Genera badge de cumplimiento SQA Agent para el README. |
+| `--meta-audit` | Audita los propios checklists del repositorio SQA: vigencia de normas, calidad de ítems, cobertura, falsos positivos, usabilidad y mantenibilidad. |
 | `--report json` | Output machine-readable JSON para CI/CD. |
 
 Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `--breach-check --learn`, `--full-audit --report json`.
@@ -136,10 +137,23 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 
 **Si hay `--fix` o `--fix --dry-run`:**
 1. Primero ejecuta la auditoría completa (o `--quick` si se combina)
-2. Para cada hallazgo `[AUTO-FIXABLE]`, genera la corrección
-3. Con `--dry-run`: muestra el diff propuesto SIN ejecutar Edit/Write
-4. Sin `--dry-run`: aplica con Edit tool, reportando líneas cambiadas
-5. Al final: tabla resumen de correcciones aplicadas vs `[MANUAL]`
+2. **Para cada archivo con hallazgos `[AUTO-FIXABLE]`, construye el impact graph:**
+   - Ejecuta `grep -r "import.*<archivo>\|require.*<archivo>" --include="*.ts" --include="*.js" --include="*.tsx" .`
+   - Reporta: `📦 Impact graph: [archivo] → importado por: [A, B, C]`
+   - Si >10 importadores directos: emite advertencia explícita antes de continuar
+3. **Aplica modelo de permisos basado en riesgo** (reemplaza la regla "≤5 líneas"):
+   - 🔴 Crítico + Confianza ALTA → mostrar diff + **pedir confirmación explícita** antes de aplicar
+   - 🔴 Crítico + Confianza MEDIA o BAJA → marcar `[MANUAL]` automáticamente
+   - 🟡 Importante + ALTA o MEDIA → mostrar diff; aplica salvo que el usuario interrumpa
+   - 🟡 Importante + BAJA → marcar `[MANUAL]`
+   - 🟢 Sugerencia → aplica directamente sin interrupción
+   - Condiciones que siempre fuerzan `[MANUAL]`: altera interfaz pública, requiere dependencia externa, corrección no determinista
+4. Con `--dry-run`: muestra el diff de cada corrección en bloque de código, sin ejecutar Edit/Write, sin generar test stubs
+5. Sin `--dry-run`: aplica con Edit tool y **genera test stub** junto a cada corrección:
+   - Crea o hace append en el archivo de tests más cercano (mismo dir o `__tests__/`) con `describe/it` esqueleto
+   - Marca: `// TODO: implementar — generado por SQA Agent v6`
+6. **Auditoría diferencial post-fix:** tras aplicar todas las correcciones, re-audita los archivos modificados + sus importadores directos. Regresiones reportadas como `⚠️ REGRESIÓN POST-FIX`
+7. Al final: tabla resumen de correcciones aplicadas vs `[MANUAL]`
 
 **Si hay `--colombia`:**
 1. Fetch `checklists/colombia-compliance.md`
@@ -153,6 +167,18 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 3. Combinable con `--fix` para los ítems AUTO-FIXABLE
 
 **Si hay `--learn`:** agrega a cada hallazgo la sección `📚 Explicación` (norma, riesgo concreto, pasos, recursos). En hallazgos de seguridad, incluye la brecha histórica relacionada de `references/breach-database.md` como caso de estudio.
+
+**Si hay `--meta-audit`:**
+1. Fetch todos los checklists del repositorio desde GitHub en paralelo
+2. Para cada checklist, aplica `checklists/meta-audit.md`:
+   - ¿Cada ítem cita norma con sección específica?
+   - ¿Los ítems son binarios y verificables?
+   - ¿La cobertura incluye vectores actuales (LLM injection, supply chain, etc.)?
+   - ¿Las normas referenciadas están vigentes (no derogadas)?
+   - ¿El checklist fue actualizado en los últimos 12 meses?
+3. Reporta por checklist: `✅ Robusto / ⚠️ Mejoras disponibles / ❌ Desactualizado`
+4. Genera plan de mejora para cada checklist con brechas detectadas
+5. Produce meta-scorecard final con nivel de madurez del sistema SQA
 
 **Si hay `--community`:** auditoría `--quick`, score = críticos pasados / críticos aplicables → 90-100% Oro 🏆, 70-89% Plata 🥈, 50-69% Bronce 🥉, <50% "improvements needed". Genera badge Markdown.
 
@@ -202,6 +228,7 @@ Si la entrada cubre múltiples áreas sin ser `--full-audit`, fetch solo los che
 | Quality in Use | https://raw.githubusercontent.com/Zeni-By-Zentra/sqa-agent/main/checklists/quality-in-use.md |
 | AI Code Audit | https://raw.githubusercontent.com/Zeni-By-Zentra/sqa-agent/main/checklists/ai-generated-code.md |
 | Colombia Compliance | https://raw.githubusercontent.com/Zeni-By-Zentra/sqa-agent/main/checklists/colombia-compliance.md |
+| Meta Audit | https://raw.githubusercontent.com/Zeni-By-Zentra/sqa-agent/main/checklists/meta-audit.md |
 
 > **Fallback de red:** Si WebFetch falla, aplica los criterios desde conocimiento embebido e indica: `⚠️ Checklist cargado desde conocimiento embebido — verificar con checklist oficial en github.com/Zeni-By-Zentra/sqa-agent`
 
@@ -224,12 +251,18 @@ En hallazgos de seguridad con precedente histórico, cita también la brecha: `P
 - **Precedente histórico:** [brecha + CVE — solo seguridad, si aplica]
 - **Archivo/Tabla:** [ruta:línea o tabla.columna]
 - **Fuente:** Código verificado | Comando ejecutado | Inferido de descripción | Git diff línea N
+- **Confianza:** ALTA | MEDIA | BAJA — [razón: qué evidencia respalda el hallazgo]
 - **Descripción:** [qué está mal y por qué es un riesgo concreto]
 - **Evidencia:** [fragmento de código, SQL, output de comando o dato específico]
 - **Explotabilidad:** [cómo lo abusaría un atacante — solo seguridad]
 - **Corrección:** [cómo arreglarlo, con código/SQL/config si aplica]
 - **Esfuerzo estimado:** 1-2h | Medio día | 1-2 días | 1 semana
 ```
+
+**Cómo asignar Confianza:**
+- **ALTA** — hallazgo visible directamente en el código o en el output de un comando (línea exacta verificada)
+- **MEDIA** — patrón inferido de la estructura del código, sin ver la línea exacta
+- **BAJA** — hallazgo hipotético basado en descripción o en ausencia de evidencia contraria
 
 En modo `--learn`, agrega después de Corrección:
 
@@ -245,23 +278,32 @@ En modo `--learn`, agrega después de Corrección:
 > Marca `[AUTO-FIXABLE]` cuando la corrección es mecánica, determinista y no requiere contexto de negocio.
 > Marca `[MANUAL]` cuando requiere decisión humana (lógica de negocio, refactor arquitectural, cambio de diseño).
 
-### Modo --fix: reglas de aplicación automática
+### Modo --fix: modelo de permisos basado en riesgo
 
-Solo aplica correcciones `[AUTO-FIXABLE]` que cumplan TODOS estos criterios:
-1. El cambio está localizado en ≤ 5 líneas del archivo original
-2. No altera la interfaz pública (API, exports, tipos públicos)
-3. No requiere agregar dependencias externas
-4. La corrección es idéntica independientemente del contexto de negocio
+El criterio "≤ 5 líneas" ha sido reemplazado por un modelo orientado al riesgo real del cambio:
 
-Si falla algún criterio → `[MANUAL]` aunque parezca obvia.
+| Severidad | Confianza | Acción |
+|-----------|-----------|--------|
+| 🔴 Crítico | ALTA | Mostrar diff + **pedir confirmación explícita** antes de aplicar |
+| 🔴 Crítico | MEDIA o BAJA | Marcar `[MANUAL]` automáticamente — no aplicar |
+| 🟡 Importante | ALTA o MEDIA | Mostrar diff en output; aplica salvo que el usuario interrumpa |
+| 🟡 Importante | BAJA | Marcar `[MANUAL]` |
+| 🟢 Sugerencia | cualquiera | Aplica directamente sin interrupción |
+
+Condiciones adicionales que **siempre** fuerzan `[MANUAL]`:
+1. La corrección altera la interfaz pública (API, exports, tipos públicos)
+2. La corrección requiere agregar dependencias externas
+3. La corrección no es determinista (depende de contexto de negocio)
+
+En `--fix` con certeza absoluta → aplica. En duda → `[MANUAL]`.
 
 Al final de `--fix`, muestra siempre:
 ```
 ## Correcciones aplicadas
-| Archivo | Línea | Hallazgo | Estado |
-|---------|-------|----------|--------|
-| src/api/auth.ts | 42 | [SEC-001] Header X-Content-Type-Options | ✅ Aplicado |
-| src/lib/db.ts | 15 | [DB-002] Missing index on user_id | ⚠️ MANUAL — requiere migración |
+| Archivo | Línea | Hallazgo | Confianza | Estado |
+|---------|-------|----------|-----------|--------|
+| src/api/auth.ts | 42 | [SEC-001] Header X-Content-Type-Options | ALTA | ✅ Aplicado |
+| src/lib/db.ts | 15 | [DB-002] Missing index on user_id | MEDIA | ⚠️ MANUAL — requiere migración |
 ```
 
 ---
@@ -286,6 +328,8 @@ Al final de `--fix`, muestra siempre:
 16. En `--pentest`: autorización primero. Sin autorización verificable sobre sistemas de terceros, el modo se limita a entregar el checklist sin ejecutar nada.
 17. En `--security`: distinguir SIEMPRE entre "verificado por comando", "verificado por lectura de código" e "inferido". Un audit de seguridad con hallazgos inferidos presentados como verificados es peor que no auditar.
 18. NUNCA pegar secretos reales encontrados en el reporte — enmascarar (`sk-live-****`) y reportar la ruta.
+19. SIEMPRE incluir el campo **Confianza** (ALTA/MEDIA/BAJA) en cada hallazgo — es la base del modelo de permisos de `--fix` y del auto-[MANUAL].
+20. En `--meta-audit`: ser crítico y objetivo. El objetivo es mejorar el sistema SQA, no validarlo. Un checklist con normas derogadas es un riesgo, no una trivialidad.
 
 ---
 
@@ -319,11 +363,17 @@ Al final de `--fix`, muestra siempre:
       "file": "src/api/auth.ts",
       "line": 42,
       "evidence_type": "command | code-read | inferred",
+      "confidence": "high | medium | low",
       "fixable": true,
       "fix_applied": false,
+      "test_stub_generated": false,
       "effort": "1-2h"
     }
-  ]
+  ],
+  "impact_graph": {
+    "src/api/auth.ts": ["src/middleware.ts", "src/app/api/login/route.ts"]
+  },
+  "post_fix_regressions": 0
 }
 ```
 

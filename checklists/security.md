@@ -346,4 +346,22 @@ docker history <imagen> --no-trunc | grep -iE 'PASSWORD|SECRET|KEY|TOKEN'  # sec
 
 **Nivel de riesgo global:** CRÍTICO / ALTO / MEDIO / BAJO
 **Veredicto de deploy:** ✅ APROBADO / ⛔ BLOQUEADO — [razón]
+
+---
+
+## PARTE E — INYECCIÓN EN MODELOS DE LENGUAJE (OWASP LLM Top 10:2025)
+
+Aplica cuando la aplicación integra un LLM (OpenAI, Anthropic, Gemini, modelos locales).
+
+- [ ] Los inputs del usuario **no se concatenan directamente** al system prompt o historial sin sanitización (LLM01 — Prompt Injection) `[CMD: grep -rn "systemPrompt.*req\|prompt.*\${" src/]`
+- [ ] Existe sanitización que elimina tokens de sistema (`<s>`, `[INST]`, `###`), prefijos de rol (`Assistant:`, `System:`, `Human:`), XML de instrucciones (`<instructions>`, `<|im_start|>`) y code fences anidados
+- [ ] Los outputs del LLM se tratan como datos no confiables: no se ejecutan como código (`eval`), no se inyectan en SQL/HTML sin escape
+- [ ] El system prompt **no contiene secretos recuperables** (API keys, contraseñas, PII de otros usuarios) (LLM02 — Sensitive Info Disclosure)
+- [ ] Longitud máxima del input del usuario está limitada (previene desbordamiento de contexto y ataques de exfiltración por acumulación)
+- [ ] El historial de conversación tiene límite de mensajes o tokens (evita que conversaciones largas filtren contexto de otras sesiones)
+- [ ] Las respuestas del LLM que van a la UI se escapan para HTML (previene XSS indirecto vía LLM)
+- [ ] El system prompt completo **no se expone** al usuario ni en mensajes de error (LLM07 — System Prompt Leakage)
+- [ ] Si el LLM puede llamar herramientas/funciones: cada tool valida sus propios argumentos, no confía ciegamente en los parámetros generados por el modelo (LLM06 — Excessive Agency)
+- [ ] Los logs de conversación no persisten PII sin enmascarar (Ley 1581/2012 Art. 17 + LLM02)
+> Precedente: **Samsung 2023** (empleados filtraron código fuente a ChatGPT via system prompt). **Prompt injection en Bing Chat 2023** (instrucciones ocultas en páginas web manipulaban al modelo).
 ```
