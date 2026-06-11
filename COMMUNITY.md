@@ -111,7 +111,7 @@ ln -s $(pwd) ~/.claude/skills/sqa-agent
 Muestra que tu proyecto fue auditado con SQA Agent:
 
 ```markdown
-[![SQA Agent Auditado](https://img.shields.io/badge/SQA%20Agent-v5.0%20Auditado-brightgreen)](https://github.com/Zeni-By-Zentra/sqa-agent)
+[![SQA Agent Auditado](https://img.shields.io/badge/SQA%20Agent-v6.0%20Auditado-brightgreen)](https://github.com/Zeni-By-Zentra/sqa-agent)
 ```
 
 Para obtener badge de nivel (Oro/Plata/Bronce), usa `sqa-agent --community` en tu proyecto.
