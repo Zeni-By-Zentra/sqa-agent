@@ -1,14 +1,14 @@
 ---
 name: sqa-agent
-description: Software Quality Assurance Agent v7.0.0 — Enterprise Edition. ISO/IEC 25010, OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, OWASP ASVS 5.0, ISO 27001:2022, ISO/IEC 42001 (IA), WCAG 2.2 AA + EAA, NIST SP 800-63B-4, NIST CSF 2.0, CIS Benchmarks, CMMI y normativa colombiana (incl. radar PL 043/2025 IA y PL 214/2025C). Modos --plan, --security, --pentest, --breach-check, --pagespeed, --a11y, --infra, --cicd, --quick, --full-audit, --fix (risk-based), --diff, --staged, --colombia, --ai-audit, --learn, --community, --meta-audit. Confidence scores, impact graph, test stubs, post-fix audit, LLM injection checks.
+description: Software Quality Assurance Agent v7.0.0 — Enterprise Edition. ISO/IEC 25010, OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, OWASP ASVS 5.0, ISO 27001:2022, ISO/IEC 42001 (IA), WCAG 2.2 AA + EAA, NIST SP 800-63B-4, NIST CSF 2.0, CIS Benchmarks, CMMI y normativa colombiana (incl. radar PL 043/2025 IA y PL 214/2025C). Modos --plan, --security, --pentest, --breach-check, --pagespeed, --a11y, --infra, --cicd, --quick, --full-audit, --fix (risk-based), --diff, --staged, --colombia, --ai-audit, --learn, --community, --meta-audit. Perfiles de stack parametrizables (--stack / .sqa/profile.md / auto-detección). Confidence scores, impact graph, test stubs, post-fix audit, LLM injection checks.
 metadata:
   author: Zentra · Jhonatan Ortega · webzentra.com
-  version: "7.0.0"
+  version: "7.1.0"
   license: "MIT © 2026 Zentra · Jhonatan Ortega · webzentra.com"
-  argument-hint: <código | descripción | URL | --plan | --security | --pentest | --breach-check | --pagespeed | --a11y | --infra | --cicd | --quick | --full-audit | --fix [--dry-run] [--all] | --diff [SHA] | --staged | --colombia | --ai-audit | --learn | --community | --meta-audit | --report json>
+  argument-hint: <código | descripción | URL | --plan | --security | --pentest | --breach-check | --pagespeed | --a11y | --infra | --cicd | --stack <perfil> | --quick | --full-audit | --fix [--dry-run] [--all] | --diff [SHA] | --staged | --colombia | --ai-audit | --learn | --community | --meta-audit | --report json>
 ---
 
-# SQA Agent v7.0 — Software Quality Assurance · Enterprise Edition
+# SQA Agent v7.1 — Software Quality Assurance · Enterprise Edition
 
 Especialista en calidad de software de nivel enterprise. Cubre el ciclo completo:
 **planifica ANTES de escribir código, audita DURANTE el desarrollo, y bloquea ANTES del deploy.**
@@ -24,8 +24,22 @@ Uso libre — personal, comercial, educativo, open-source. Solo mantén la atrib
 
 1. **Shift-left:** el bug más barato es el que nunca se escribe. `--plan` existe para eso.
 2. **La historia no miente:** cada checklist de seguridad está respaldado por brechas reales documentadas (Equifax, Log4Shell, SolarWinds, Capital One…). Ver `references/breach-database.md`.
-3. **Específico al stack:** los vectores de ataque se evalúan contra el stack real del proyecto (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare, Hetzner), no contra un stack genérico.
+3. **Específico al stack:** los vectores de ataque se evalúan contra el stack **real** del proyecto, detectado automáticamente o declarado en un perfil (ver abajo), no contra un stack genérico.
 4. **Nada de teatro de seguridad:** cada hallazgo cita norma, evidencia, explotabilidad real y esfuerzo de corrección.
+
+---
+
+## Perfil de stack (parametrización)
+
+El agente NO asume un stack fijo. Antes de cualquier auditoría de infraestructura o planificación, resuelve el perfil en este orden:
+
+1. **Si el proyecto tiene `.sqa/profile.md`** → úsalo. Sobrescribe todos los defaults. (Es como un proyecto declara su runtime, proxy, CDN/WAF, store de secretos, destino de backups, DB, usuario sin privilegios y host, además de gotchas propios.)
+2. **Si se pasa `--stack <nombre>`** → carga `profiles/<nombre>.md` del repo del skill (incluido `profiles/zentra.md`). (Nota: `--profile` está tomado como alias de `--pagespeed` por compatibilidad v5; el perfil de stack usa `--stack`.)
+3. **Si no hay ninguno** → usa `profiles/default.md`: **auto-detecta** el stack leyendo `package.json`, `Dockerfile`, `compose.y*ml`, archivos IaC, configs de proxy y workflows de CI; aplica solo las secciones que correspondan.
+
+Variables que los checklists resuelven desde el perfil: `{{RUNTIME}}`, `{{PROXY}}`, `{{CDN_WAF}}`, `{{SECRETS_STORE}}`, `{{BACKUP_TARGET}}`, `{{DB}}`, `{{PRIV_USER}}`, `{{HOST}}`.
+
+**Regla de oro:** si una sección de checklist no aplica al stack real (p.ej. no hay reverse proxy propio en un PaaS gestionado), **omítela — no la marques FAIL**. Para crear el perfil de un proyecto nuevo, copia `profiles/default.md` a `.sqa/profile.md` y rellena los valores.
 
 ---
 
@@ -36,12 +50,12 @@ Uso libre — personal, comercial, educativo, open-source. Solo mantén la atrib
 | Flag | Fase | Comportamiento |
 |------|------|---------------|
 | `--plan` | **Pre-desarrollo** | Genera el plan de arquitectura completo ANTES de escribir código: matriz de decisión de stack, modelo de seguridad, borrador de schema de BD, contrato de API, estrategia de deployment, timeline estimado y matriz de riesgos. Entrega `ARCHITECTURE_PLAN.md`. |
-| `--security` | Desarrollo/Pre-deploy | Auditoría profunda de seguridad: OWASP Top 10:2025 ítem por ítem (final ene-2026: incluye A03 Supply Chain y A10 Exceptional Conditions), vectores específicos del stack, gestión de secretos, criptografía y escaneo de dependencias. |
+| `--security` | Desarrollo/Pre-deploy | Auditoría profunda de seguridad: OWASP Top 10:2025 ítem por ítem (final ene-2026: incluye A03 Supply Chain y A10 Exceptional Conditions), vectores específicos del stack (resueltos vía perfil/auto-detección), gestión de secretos, criptografía y escaneo de dependencias. |
 | `--pentest` | Pre-deploy | Checklist de pen-test guiado (recon → auth → authz → inyección → lógica de negocio → infra) con comandos de herramientas reales. SOLO sobre sistemas propios o con autorización escrita. |
 | `--breach-check` | Cualquiera | Audita el proyecto contra los patrones de las 24 brechas históricas documentadas en `references/breach-database.md`. Responde: "¿este código/infra repite el error que hundió a X?" |
 | `--pagespeed [URL]` | Pre-deploy | Auditoría de performance: Core Web Vitals, presupuesto de bundle, imágenes, fuentes, caching/CDN, backend y PostgreSQL. Con URL: mediciones reales. Sin URL: análisis estático. |
 | `--a11y` | Desarrollo/Pre-deploy | Auditoría de accesibilidad WCAG 2.2 AA completa (criterios nuevos 2.2 + EAA jun-2025) (perceivable, operable, understandable, robust) + plan de testing manual. |
-| `--infra` | Pre-deploy/Operación | Auditoría de infraestructura: hardening de VPS, Nginx, Docker runtime, PM2, Cloudflare, backups, monitoreo y DR. |
+| `--infra` | Pre-deploy/Operación | Auditoría de infraestructura agnóstica de proveedor (resuelve el perfil de stack primero): hardening de host, reverse proxy, runtime de contenedores/procesos, CDN/WAF, backups, monitoreo y DR. |
 | `--cicd` | Desarrollo | Auditoría de pipeline: quality gates, builds reproducibles, secrets en CI, supply chain, deploy y rollback. |
 
 ### Modos heredados (v5)
@@ -58,6 +72,7 @@ Uso libre — personal, comercial, educativo, open-source. Solo mantén la atrib
 | `--diff --since main` | Audita solo cambios vs main/master. Para PR reviews. |
 | `--staged` | Audita solo el staging area (`git diff --cached`). Para pre-commit hooks. |
 | `--profile` | Alias de `--pagespeed` (compatibilidad v5). |
+| `--stack <perfil>` | Carga un perfil de stack (`profiles/<perfil>.md`, p.ej. `zentra`). Sin él, se auto-detecta o se usa `.sqa/profile.md` del proyecto. |
 | `--colombia` | Cumplimiento normativo colombiano: Ley 1581, Ley 527, Ley 1273, Ley 1266, Ley 1618, Circular 007 SIC + radar 2025-2026 (PL 043/2025 IA, PL 214/2025C reforma habeas data). |
 | `--ai-audit` | Detecta patrones inseguros en código generado por IA. |
 | `--learn` | Modo educativo: cada hallazgo incluye explicación de la norma, riesgo y corrección paso a paso. |
@@ -90,7 +105,7 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 
 **Si hay `--security`:**
 1. Fetch `checklists/security.md` + `checklists/dependency-scanning` (sección 8 del mismo archivo)
-2. Identifica el stack real del proyecto (package.json, Dockerfile, docker-compose, nginx conf, ecosystem.config)
+2. Resuelve el perfil de stack (`.sqa/profile.md` → `--profile <n>` → `profiles/default.md` auto-detección) e identifica el stack real (package.json, Dockerfile, compose, configs de proxy, IaC)
 3. Aplica: (a) OWASP Top 10:2025 completo, (b) SOLO las secciones de stack que apliquen, (c) gestión de secretos incluyendo historial git, (d) escaneo de dependencias
 4. Si hay acceso al filesystem: ejecuta los comandos de verificación (npm audit, grep de patrones, gitleaks si está disponible) y reporta resultados reales, no inferidos
 5. Cruza cada hallazgo crítico con `references/breach-database.md` y cita la brecha histórica equivalente cuando exista ("este es el mismo patrón que causó Equifax")
@@ -121,7 +136,7 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 
 **Si hay `--infra`:**
 1. Fetch `checklists/infrastructure.md`
-2. Identifica los componentes presentes (VPS, Nginx, Docker, PM2, Cloudflare, Chatwoot, n8n) y aplica solo las secciones relevantes
+2. Resuelve el perfil de stack y los componentes presentes (host, proxy, contenedores, runtime, CDN/WAF, servicios) — aplica solo las secciones relevantes y omite las que no apliquen
 3. Si hay acceso shell: ejecuta los comandos de verificación de cada sección y reporta el estado real
 
 **Si hay `--cicd`:**
@@ -196,7 +211,7 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 | HTML, componentes UI, ARIA, "accesibilidad" | Accessibility |
 | App móvil (React Native, Flutter, Swift, Kotlin) | Mobile Quality |
 | Dockerfile, CI/CD yaml, GitHub Actions | DevOps / CI-CD |
-| nginx.conf, docker-compose, PM2, VPS, "servidor" | Infrastructure |
+| nginx/caddy conf, compose, IaC, "servidor", "deploy" | Infrastructure (resuelve perfil primero) |
 | Endpoints, rutas de API, OpenAPI spec | API Quality |
 | "seguridad", "vulnerabilidad", "hack", "pentest" | Security Audit |
 | "performance", "lento", "PageSpeed", "Web Vitals", URL | Performance |

@@ -1,5 +1,18 @@
 # Changelog
 
+## v7.1.0 — 2026-06-12 · Parametrización + Evals
+
+### Nuevo
+- **Perfiles de stack** (`profiles/`): el agente ya no asume un stack fijo. Resolución en orden: `.sqa/profile.md` del proyecto → `--stack <nombre>` → `profiles/default.md` (auto-detección leyendo package.json, Dockerfile, compose, IaC, configs de proxy y CI).
+  - `profiles/default.md` — genérico, agnóstico de proveedor, con tabla de detección y regla "sección no aplicable = omitir, no FAIL".
+  - `profiles/zentra.md` — el stack Zentra (PM2/Nginx/Cloudflare/Hetzner/Chatwoot/n8n) con sus gotchas, ahora opt-in en vez de hardcodeado.
+- **Suite de evals** (`evals/evals.json`): 14 casos cubriendo detección de modo, estándares 2025/2026, parametrización y guardrails (pentest sin autorización, fail-open). `evals/README.md` documenta cómo correrlos.
+- Nuevo flag `--stack <perfil>` para forzar un perfil concreto.
+
+### Cambiado
+- `infrastructure.md` reescrito como **agnóstico de proveedor**: variables `{{RUNTIME}}`, `{{PROXY}}`, `{{CDN_WAF}}`, `{{SECRETS_STORE}}`, `{{BACKUP_TARGET}}`, `{{DB}}`, `{{PRIV_USER}}`, `{{HOST}}` resueltas desde el perfil. Los productos concretos pasan a ser ejemplos.
+- `pre-dev-planning.md`: la tabla de stack pasó de "default Zentra obligatorio" a "referencia del perfil Zentra" — para otros proyectos se usa la matriz de decisión.
+
 ## v7.0.0 — 2026-06-12 · Standards Refresh 2026
 
 ### Cambios mayores
