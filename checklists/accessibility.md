@@ -1,4 +1,8 @@
-# Accessibility Checklist — WCAG 2.1 AA + Resolución 1519/2016 Colombia
+# Accessibility Checklist — WCAG 2.2 AA + Resolución 1519/2016 Colombia
+
+> WCAG 2.2 es W3C Recommendation desde oct-2023 y baseline de EN 301 549 para el European
+> Accessibility Act (EAA), exigible en la UE desde jun-2025 (multas hasta €100K o 4% revenue).
+> Si el producto vende a usuarios de la UE, WCAG 2.2 AA no es opcional.
 
 > Evalúa accesibilidad funcional de código. Para auditoría visual de diseño UI, usar /web-design-guidelines.
 
@@ -156,3 +160,20 @@
 **Cumplimiento:** WCAG 2.1 AA CUMPLE / CUMPLE PARCIALMENTE / NO CUMPLE
 **Riesgo legal:** ALTO (Colombia Res. 1519/2016 para entidades públicas) / BAJO (privado)
 ```
+
+---
+
+## 6. NUEVOS CRITERIOS WCAG 2.2 (no estaban en 2.1)
+
+### Nivel A
+- [ ] **3.2.6 Consistent Help**: mecanismos de ayuda (chat, teléfono, FAQ) en el mismo orden relativo en todas las páginas
+- [ ] **3.3.7 Redundant Entry**: no pedir re-ingresar información ya proporcionada en el mismo proceso (autocompletar o pre-llenar)
+
+### Nivel AA
+- [ ] **2.4.11 Focus Not Obscured (Minimum)**: el elemento con foco de teclado nunca queda completamente oculto por contenido sticky/overlay
+- [ ] **2.5.7 Dragging Movements**: toda acción de arrastre tiene alternativa de un solo puntero (botones subir/bajar, tap-tap)
+- [ ] **2.5.8 Target Size (Minimum)**: targets táctiles ≥24×24 px CSS (o spacing equivalente) — excepto inline en texto
+- [ ] **3.3.8 Accessible Authentication (Minimum)**: login sin tests cognitivos (memorizar, transcribir, resolver puzzles); permitir paste y password managers; passkeys/WebAuthn cumplen
+
+### Eliminado en 2.2
+- **4.1.1 Parser** ya no aplica (obsoleto — los navegadores modernos manejan parsing). No reportar como hallazgo.

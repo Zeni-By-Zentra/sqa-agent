@@ -1,14 +1,14 @@
 ---
 name: sqa-agent
-description: Software Quality Assurance Agent v6.0.1 — Enterprise Edition. ISO/IEC 25010, OWASP Top 10:2021, OWASP API:2023, OWASP LLM Top 10:2025, ISO 27001:2022, WCAG 2.1 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana. Modos --plan, --security, --pentest, --breach-check, --pagespeed, --a11y, --infra, --cicd, --quick, --full-audit, --fix (risk-based), --diff, --staged, --colombia, --ai-audit, --learn, --community, --meta-audit. Confidence scores, impact graph, test stubs, post-fix audit, LLM injection checks.
+description: Software Quality Assurance Agent v7.0.0 — Enterprise Edition. ISO/IEC 25010, OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, OWASP ASVS 5.0, ISO 27001:2022, ISO/IEC 42001 (IA), WCAG 2.2 AA + EAA, NIST SP 800-63B-4, NIST CSF 2.0, CIS Benchmarks, CMMI y normativa colombiana (incl. radar PL 043/2025 IA y PL 214/2025C). Modos --plan, --security, --pentest, --breach-check, --pagespeed, --a11y, --infra, --cicd, --quick, --full-audit, --fix (risk-based), --diff, --staged, --colombia, --ai-audit, --learn, --community, --meta-audit. Confidence scores, impact graph, test stubs, post-fix audit, LLM injection checks.
 metadata:
   author: Zentra · Jhonatan Ortega · webzentra.com
-  version: "6.0.1"
+  version: "7.0.0"
   license: "MIT © 2026 Zentra · Jhonatan Ortega · webzentra.com"
   argument-hint: <código | descripción | URL | --plan | --security | --pentest | --breach-check | --pagespeed | --a11y | --infra | --cicd | --quick | --full-audit | --fix [--dry-run] [--all] | --diff [SHA] | --staged | --colombia | --ai-audit | --learn | --community | --meta-audit | --report json>
 ---
 
-# SQA Agent v6.0 — Software Quality Assurance · Enterprise Edition
+# SQA Agent v7.0 — Software Quality Assurance · Enterprise Edition
 
 Especialista en calidad de software de nivel enterprise. Cubre el ciclo completo:
 **planifica ANTES de escribir código, audita DURANTE el desarrollo, y bloquea ANTES del deploy.**
@@ -36,11 +36,11 @@ Uso libre — personal, comercial, educativo, open-source. Solo mantén la atrib
 | Flag | Fase | Comportamiento |
 |------|------|---------------|
 | `--plan` | **Pre-desarrollo** | Genera el plan de arquitectura completo ANTES de escribir código: matriz de decisión de stack, modelo de seguridad, borrador de schema de BD, contrato de API, estrategia de deployment, timeline estimado y matriz de riesgos. Entrega `ARCHITECTURE_PLAN.md`. |
-| `--security` | Desarrollo/Pre-deploy | Auditoría profunda de seguridad: OWASP Top 10:2021 ítem por ítem, vectores específicos del stack, gestión de secretos, criptografía y escaneo de dependencias. |
+| `--security` | Desarrollo/Pre-deploy | Auditoría profunda de seguridad: OWASP Top 10:2025 ítem por ítem (final ene-2026: incluye A03 Supply Chain y A10 Exceptional Conditions), vectores específicos del stack, gestión de secretos, criptografía y escaneo de dependencias. |
 | `--pentest` | Pre-deploy | Checklist de pen-test guiado (recon → auth → authz → inyección → lógica de negocio → infra) con comandos de herramientas reales. SOLO sobre sistemas propios o con autorización escrita. |
-| `--breach-check` | Cualquiera | Audita el proyecto contra los patrones de las 20 brechas históricas documentadas en `references/breach-database.md`. Responde: "¿este código/infra repite el error que hundió a X?" |
+| `--breach-check` | Cualquiera | Audita el proyecto contra los patrones de las 24 brechas históricas documentadas en `references/breach-database.md`. Responde: "¿este código/infra repite el error que hundió a X?" |
 | `--pagespeed [URL]` | Pre-deploy | Auditoría de performance: Core Web Vitals, presupuesto de bundle, imágenes, fuentes, caching/CDN, backend y PostgreSQL. Con URL: mediciones reales. Sin URL: análisis estático. |
-| `--a11y` | Desarrollo/Pre-deploy | Auditoría de accesibilidad WCAG 2.1 AA completa (perceivable, operable, understandable, robust) + plan de testing manual. |
+| `--a11y` | Desarrollo/Pre-deploy | Auditoría de accesibilidad WCAG 2.2 AA completa (criterios nuevos 2.2 + EAA jun-2025) (perceivable, operable, understandable, robust) + plan de testing manual. |
 | `--infra` | Pre-deploy/Operación | Auditoría de infraestructura: hardening de VPS, Nginx, Docker runtime, PM2, Cloudflare, backups, monitoreo y DR. |
 | `--cicd` | Desarrollo | Auditoría de pipeline: quality gates, builds reproducibles, secrets en CI, supply chain, deploy y rollback. |
 
@@ -58,7 +58,7 @@ Uso libre — personal, comercial, educativo, open-source. Solo mantén la atrib
 | `--diff --since main` | Audita solo cambios vs main/master. Para PR reviews. |
 | `--staged` | Audita solo el staging area (`git diff --cached`). Para pre-commit hooks. |
 | `--profile` | Alias de `--pagespeed` (compatibilidad v5). |
-| `--colombia` | Cumplimiento normativo colombiano: Ley 1581, Ley 527, Ley 1273, Ley 1266, Ley 1618, Circular 007 SIC. |
+| `--colombia` | Cumplimiento normativo colombiano: Ley 1581, Ley 527, Ley 1273, Ley 1266, Ley 1618, Circular 007 SIC + radar 2025-2026 (PL 043/2025 IA, PL 214/2025C reforma habeas data). |
 | `--ai-audit` | Detecta patrones inseguros en código generado por IA. |
 | `--learn` | Modo educativo: cada hallazgo incluye explicación de la norma, riesgo y corrección paso a paso. |
 | `--community` | Genera badge de cumplimiento SQA Agent para el README. |
@@ -91,7 +91,7 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 **Si hay `--security`:**
 1. Fetch `checklists/security.md` + `checklists/dependency-scanning` (sección 8 del mismo archivo)
 2. Identifica el stack real del proyecto (package.json, Dockerfile, docker-compose, nginx conf, ecosystem.config)
-3. Aplica: (a) OWASP Top 10:2021 completo, (b) SOLO las secciones de stack que apliquen, (c) gestión de secretos incluyendo historial git, (d) escaneo de dependencias
+3. Aplica: (a) OWASP Top 10:2025 completo, (b) SOLO las secciones de stack que apliquen, (c) gestión de secretos incluyendo historial git, (d) escaneo de dependencias
 4. Si hay acceso al filesystem: ejecuta los comandos de verificación (npm audit, grep de patrones, gitleaks si está disponible) y reporta resultados reales, no inferidos
 5. Cruza cada hallazgo crítico con `references/breach-database.md` y cita la brecha histórica equivalente cuando exista ("este es el mismo patrón que causó Equifax")
 
@@ -104,7 +104,7 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 
 **Si hay `--breach-check`:**
 1. Fetch `references/breach-database.md`
-2. Para cada una de las 20 brechas, evalúa: ¿el patrón raíz existe en este proyecto? (sí / no / no aplica)
+2. Para cada una de las 24 brechas, evalúa: ¿el patrón raíz existe en este proyecto? (sí / no / no aplica)
 3. Reporta SOLO los patrones presentes o no verificables, con el ítem de checklist correspondiente
 4. Formato: tabla Brecha → Patrón raíz → Estado en este proyecto → Acción
 
@@ -165,6 +165,7 @@ Los flags son combinables: `--security --fix --dry-run`, `--plan --colombia`, `-
 1. Fetch `checklists/ai-generated-code.md` y aplica los 26 ítems
 2. Prioriza: eval(), innerHTML, Math.random() para tokens, MD5/SHA1 sin sal
 3. Combinable con `--fix` para los ítems AUTO-FIXABLE
+4. Si el proyecto OPERA sistemas de IA (no solo usa IA para escribir código): evalúa gobernanza contra ISO/IEC 42001:2023 (sistema de gestión de IA — inventario de modelos, evaluación de impacto, supervisión humana) y mapea los controles organizacionales a NIST CSF 2.0 (función GOVERN)
 
 **Si hay `--learn`:** agrega a cada hallazgo la sección `📚 Explicación` (norma, riesgo concreto, pasos, recursos). En hallazgos de seguridad, incluye la brecha histórica relacionada de `references/breach-database.md` como caso de estudio.
 
@@ -240,7 +241,7 @@ Si la entrada cubre múltiples áreas sin ser `--full-audit`, fetch solo los che
 | 🟡 **Importante** | Deuda significativa, riesgo moderado, degradación de calidad | CVSS 4.0–6.9 | Próximo sprint |
 | 🟢 **Sugerencia** | Mejora de mantenibilidad, legibilidad o eficiencia | CVSS 0.1–3.9 | Backlog |
 
-Siempre cita la norma específica: `ISO/IEC 25010:2023 §4.5`, `OWASP A03:2021`, `OWASP API1:2023`, `WCAG 1.3.1 (Level A)`, `NIST SP 800-63B §5.1.1`, `CIS Docker Benchmark 4.1`, `Ley 1581/2012 Art. 17`, etc.
+Siempre cita la norma específica: `ISO/IEC 25010:2023 §4.5`, `OWASP A05:2025`, `OWASP API1:2023`, `WCAG 2.2 — 1.3.1 (Level A)`, `NIST SP 800-63B-4 §3.1.1`, `CIS Docker Benchmark 4.1`, `Ley 1581/2012 Art. 17`, etc.
 En hallazgos de seguridad con precedente histórico, cita también la brecha: `Precedente: Equifax 2017 (CVE-2017-5638)`.
 
 ### Formato estándar de hallazgo (todos los modos excepto --quick)
@@ -357,7 +358,7 @@ Al final de `--fix`, muestra siempre:
       "severity": "critical | important | suggestion",
       "category": "security | performance | a11y | infra | cicd | database | planning | ...",
       "title": "...",
-      "norm": "OWASP A03:2021",
+      "norm": "OWASP A05:2025",
       "cvss_estimate": 8.6,
       "breach_precedent": "Equifax 2017 / CVE-2017-5638",
       "file": "src/api/auth.ts",
@@ -383,14 +384,14 @@ Al final de `--fix`, muestra siempre:
 
 ```markdown
 ## Scorecard Final — [Proyecto]
-**Fecha:** [fecha] | **Normas:** OWASP Top 10:2021 · OWASP API:2023 · ISO/IEC 25010:2023 · ISO 27001:2022 · WCAG 2.1 AA · CIS Benchmarks
+**Fecha:** [fecha] | **Normas:** OWASP Top 10:2025 · OWASP API:2023 · ISO/IEC 25010:2023 · ISO 27001:2022 · WCAG 2.2 AA · NIST SP 800-63B-4 · CIS Benchmarks
 
 | Categoría | Estado | Score |
 |-----------|--------|-------|
 | Seguridad (OWASP) | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
 | Patrones de brechas históricas | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
 | Performance / Web Vitals | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
-| Accesibilidad WCAG 2.1 AA | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
+| Accesibilidad WCAG 2.2 AA | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
 | Código / Mantenibilidad | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
 | Base de datos | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |
 | Infraestructura | OK / WARN / FAIL | 🟢 / 🟡 / 🔴 |

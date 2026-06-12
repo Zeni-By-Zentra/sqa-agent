@@ -113,6 +113,26 @@
 
 ---
 
+## 21. xz-utils / liblzma (2024) — supply chain casi catastrófica, CVE-2024-3094
+- **Patrón raíz:** mantenedor malicioso infiltrado 2 años ("Jia Tan") ganó confianza y plantó backdoor en la lib de compresión usada por sshd en distros mayores. Detectado por un ingeniero de Microsoft por una latencia de 500ms ANTES de llegar masivamente a producción.
+- **Lección:** la confianza en mantenedores ES parte de tu superficie de ataque. Dependencias críticas del sistema requieren el mismo escrutinio que el código propio.
+- **Control:** OWASP A03:2025 · checklist security §A03, Parte C
+
+## 22. Change Healthcare (2024) — sector salud EEUU paralizado, ~$2.4B en costos
+- **Patrón raíz:** credenciales comprometidas en portal de acceso remoto Citrix SIN MFA → ransomware ALPHV/BlackCat → claims médicos de medio EEUU detenidos semanas. Datos de ~190M personas.
+- **Lección:** UN punto de acceso remoto sin MFA basta. El blast radius de infraestructura crítica multiplica el daño.
+- **Control:** OWASP A07:2025 · checklist security §A07, infra
+
+## 23. Snowflake customer breaches (2024) — Ticketmaster, Santander y ~165 orgs
+- **Patrón raíz:** credenciales robadas por infostealers (años antes) + cuentas de cliente sin MFA ni network policies → exfiltración masiva multi-tenant. No fue brecha de Snowflake sino de configuración de sus clientes.
+- **Lección:** la seguridad del SaaS es responsabilidad compartida — el proveedor da los controles, TÚ los activas. Credenciales viejas nunca expiran solas.
+- **Control:** OWASP A07/A02:2025 · checklist security §A07, §A02
+
+## 24. CrowdStrike (2024) — no-brecha que tumbó al mundo, ~8.5M Windows BSOD
+- **Patrón raíz:** update de contenido con datos malformados pasó validación defectuosa → null pointer en driver kernel → BSOD global simultáneo (aviación, banca, hospitales). Sin canary deployment, sin rollback gradual.
+- **Lección:** el manejo de condiciones excepcionales y el despliegue gradual son controles de seguridad. Fail-open/crash a escala = incidente de disponibilidad masivo sin atacante.
+- **Control:** OWASP A10:2025 (Mishandling of Exceptional Conditions) · checklist security §A10, devops
+
 ## Tabla resumen — patrón → control → caso
 
 | # | Brecha | Patrón raíz | Control OWASP | Checklist |
@@ -146,3 +166,7 @@
 2. **Modo `--security`:** al encontrar un hallazgo crítico, citar la brecha equivalente como precedente para dimensionar el riesgo ante el cliente ("esto es el mismo error que costó $1.4B a Equifax").
 3. **Modo `--learn`:** usar el caso real como sección "Caso real" en la explicación educativa de cada hallazgo de seguridad.
 4. **En `--plan`:** revisar esta lista durante el threat model — la mayoría de las catástrofes son 5-6 patrones repetidos, no exploits exóticos.
+| 21 | xz-utils | Mantenedor malicioso / backdoor en dep | A03:2025 | security §A03, Parte C |
+| 22 | Change Healthcare | Acceso remoto sin MFA → ransomware | A07:2025 | security §A07, infra |
+| 23 | Snowflake (clientes) | Infostealer creds + sin MFA en SaaS | A07:2025 | security §A07 |
+| 24 | CrowdStrike | Update sin canary + fallo excepcional kernel | A10:2025 | security §A10, devops |

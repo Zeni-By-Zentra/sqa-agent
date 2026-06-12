@@ -1,5 +1,19 @@
 # Changelog
 
+## v7.0.0 — 2026-06-12 · Standards Refresh 2026
+
+### Cambios mayores
+- **OWASP Top 10:2025** (final ene-2026) reemplaza 2021 en todo el checklist de seguridad:
+  - Nuevo A03: Software Supply Chain Failures (con ítems de CI/CD, registries, typosquatting)
+  - Nuevo A10: Mishandling of Exceptional Conditions (fail-closed, circuit breakers, canary deploys)
+  - SSRF absorbido en A01 · Misconfiguration sube a #2 · Crypto baja a #4
+- **NIST SP 800-63B-4** (final jul-2025): passwords min 8/recomendado 15 chars, prohibidas reglas de composición y rotación forzada, passkeys/FIDO2 = AAL2, MFA phishing-resistant como baseline
+- **WCAG 2.2 AA** reemplaza 2.1: 6 criterios nuevos integrados (Target Size 24px, Accessible Authentication, Dragging, Focus Not Obscured, Consistent Help, Redundant Entry) + 4.1.1 Parser eliminado + contexto EAA (exigible UE jun-2025)
+- **Breach database 20→24**: xz-utils 2024 (supply chain), Change Healthcare 2024 (MFA), Snowflake 2024 (SaaS shared responsibility), CrowdStrike 2024 (exceptional conditions)
+- **Radar normativo Colombia 2025-2026**: PL 043/2025 (regulación IA) y PL 214/2025C (reforma Ley 1581) documentados como EN TRÁMITE con recomendaciones de diseño anticipado
+- **ASVS 5.0** (may-2025) referenciado como estándar de verificación
+
+
 ## v6.0.1 (2026-06-11) — Risk-based fix + Meta-audit + LLM injection
 
 ### Nuevas funcionalidades
