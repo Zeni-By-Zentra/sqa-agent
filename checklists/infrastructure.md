@@ -1,14 +1,22 @@
-# Infrastructure Audit Checklist — VPS · Nginx · Docker Runtime · PM2 · Cloudflare · Backups · DR
+# Infrastructure Audit Checklist — Runtime · Proxy · Contenedores · CDN/WAF · Backups · DR
 
 > Auditoría de la infraestructura en operación (no del pipeline — eso es `devops.md`).
-> Enfocado en el stack real Zentra: **Hetzner VPS + Nginx + Docker/PM2 + Cloudflare + Chatwoot + n8n**.
-> Complementa `security.md` Parte B (vectores específicos del stack). Marca evidencia: **[CMD]** / **[CODE]** / **[INF]**.
+> **Agnóstico de proveedor.** Aplica según el stack que detectes o el `.sqa/profile.md` del
+> proyecto. Los nombres de productos concretos (un VPS, un CDN, un gestor de procesos) son
+> **ejemplos** — evalúa el control subyacente contra lo que el proyecto realmente use.
+> Complementa `security.md` Parte B. Marca evidencia: **[CMD]** / **[CODE]** / **[INF]**.
+
+> **Perfil de stack:** lee primero `profiles/default.md` (auto-detección) o el
+> `.sqa/profile.md` del proyecto. Resuelve las variables `{{RUNTIME}}`, `{{PROXY}}`,
+> `{{CDN_WAF}}`, `{{SECRETS_STORE}}`, `{{BACKUP_TARGET}}`, `{{DB}}`, `{{PRIV_USER}}`, `{{HOST}}`
+> antes de auditar. Si una sección no aplica al stack (p.ej. no hay reverse proxy propio en
+> un PaaS gestionado), **omítela — no la marques FAIL**.
 
 **Estándares:** CIS Benchmarks (Linux, Docker, Nginx), ISO/IEC 27001:2022 A.8/A.12, NIST SP 800-123 (server hardening).
 
 ---
 
-## 1. HARDENING DEL VPS (Hetzner / Linux)
+## 1. HARDENING DEL HOST `{{HOST}}` (VPS/servidor Linux — omitir si es PaaS gestionado)
 
 ### 1.1 Acceso
 - [ ] SSH solo por llave pública — `PasswordAuthentication no` en `sshd_config`
@@ -16,20 +24,20 @@
 - [ ] Cambiar puerto SSH default es opcional (security by obscurity, no sustituye lo anterior)
 - [ ] Llaves SSH por persona (no compartidas); revocación documentada al salir alguien del equipo
 - [ ] `fail2ban` activo con jail para sshd y para endpoints de login de la app
-- [ ] Acceso administrativo desde IPs conocidas o vía Tailscale/VPN cuando sea posible (patrón Zentra: túnel Tailscale a PC local)
+- [ ] Acceso administrativo desde IPs conocidas o vía Tailscale/VPN cuando sea posible
 > Comandos: `sshd -T | grep -E 'passwordauthentication|permitrootlogin'`, `fail2ban-client status`
 
 ### 1.2 Firewall y superficie
 - [ ] `ufw`/nftables con política **deny por defecto**; solo 22/80/443 abiertos a internet
-- [ ] Servicios internos (PostgreSQL 5432, Redis 6379, n8n 5678, Chatwoot, apps Node) **bind a 127.0.0.1** o red Docker interna — NUNCA `0.0.0.0` expuesto
+- [ ] Servicios internos (base de datos, cache, colas, workers — p.ej. PostgreSQL 5432, Redis 6379) **bind a 127.0.0.1** o red interna del orquestador — NUNCA `0.0.0.0` expuesto
 - [ ] Verificar puertos escuchando hacia fuera: `ss -tlnp` — todo lo que escuche en `0.0.0.0` debe justificarse
-- [ ] Origen detrás de Cloudflare: firewall acepta 80/443 SOLO desde rangos de Cloudflare (evita bypass del WAF por IP directa)
+- [ ] Si hay `{{CDN_WAF}}` delante: firewall acepta 80/443 SOLO desde los rangos del CDN/WAF (evita bypass por IP directa al origen)
 
 ### 1.3 Sistema operativo
 - [ ] Actualizaciones de seguridad automatizadas (`unattended-upgrades` en Debian/Ubuntu)
 - [ ] Sin CVEs críticos pendientes en el OS (`apt list --upgradable`)
 - [ ] Reloj sincronizado (NTP/chrony) — crítico para TLS, logs y tokens anti-replay
-- [ ] Espacio en disco monitoreado (un disco lleno tumba Postgres, PM2 y Docker) — alerta a 80%
+- [ ] Espacio en disco monitoreado (un disco lleno tumba DB, runtime y contenedores) — alerta a 80%
 - [ ] Swap configurado para servicios que pueden picar en memoria (Node, Postgres)
 - [ ] Usuarios del sistema sin shells innecesarios; sin cuentas huérfanas
 
@@ -46,10 +54,10 @@
 - [ ] `limit_req_zone` en login y endpoints sensibles
 - [ ] Gzip/Brotli para texto; cache headers correctos (assets con hash `immutable`, HTML/API `no-store`/corto)
 - [ ] `proxy_pass` apunta a `127.0.0.1`/upstream interno, nunca a un servicio público
-- [ ] `real_ip` configurado desde rangos Cloudflare para que rate limit y logs vean la IP real del cliente
-- [ ] Renovación de certificados automatizada (certbot cron o cert de origen Cloudflare con vencimiento monitoreado)
+- [ ] `real_ip`/`X-Forwarded-For` confiable configurado desde el CDN/WAF para que rate limit y logs vean la IP real del cliente
+- [ ] Renovación de certificados automatizada (ACME/certbot, o cert de origen del CDN con vencimiento monitoreado)
 - [ ] Config probada antes de recargar: `nginx -t && systemctl reload nginx` (nunca `restart` a ciegas en prod)
-> Nota Zentra: cuidado con `location` exact-match vs prefix (gotcha documentado en proyectos Zeni/SEO).
+> Nota: cuidado con `location` exact-match vs prefix (gotcha común que rompe rutas). Ver gotchas del perfil de stack si el proyecto define uno.
 
 ---
 
@@ -59,7 +67,7 @@
 - [ ] `restart: unless-stopped` o `always` en servicios de producción
 - [ ] **Healthchecks** definidos por servicio + `depends_on: condition: service_healthy`
 - [ ] Resource limits: `mem_limit`/`cpus` (o `deploy.resources`) — un contenedor no debe poder tumbar el host
-- [ ] Volúmenes nombrados para datos persistentes (Postgres, Chatwoot uploads) — declarados explícitamente
+- [ ] Volúmenes nombrados para datos persistentes (DB, uploads de la app) — declarados explícitamente
 - [ ] `/var/run/docker.sock` NO montado en contenedores expuestos (= root del host)
 - [ ] `no-new-privileges:true`; `cap_drop: [ALL]` + caps mínimos; `read_only` donde se pueda
 - [ ] Red Docker segmentada: BD/Redis en red interna sin `ports:` publicados al host
@@ -70,42 +78,43 @@
 
 ---
 
-## 4. PM2 (apps Node)
+## 4. RUNTIME DE LA APP `{{RUNTIME}}` (gestor de procesos / contenedor / systemd — omitir si es PaaS)
 
-- [ ] PM2 corre bajo usuario sin privilegios dedicado (patrón Zeni: usuario `zeni`, NO root)
-- [ ] ⚠️ Gotcha Zentra documentado: pueden coexistir DOS PM2 (root y usuario). Usar SIEMPRE `su - zeni -c 'pm2 ...'`; el PM2 de root suele estar errored y se ignora
-- [ ] Secrets cargados desde `secrets.env` (source antes de `pm2 restart --update-env`), nunca hardcodeados en `ecosystem.config.js`
-- [ ] `pm2 save` ejecutado tras cambios de estado; `pm2 startup` configurado (sobrevive reboot)
-- [ ] `pm2-logrotate` instalado y configurado (max size + retención)
-- [ ] `max_memory_restart` definido (auto-restart ante memory leak)
-- [ ] `instances` y `exec_mode: cluster` evaluados según carga; sticky sessions si hay estado en memoria
-- [ ] App siempre detrás de Nginx, nunca el puerto de PM2 expuesto a internet
-- [ ] Procedimiento de restart documentado: `source secrets.env → pm2 restart <app> --update-env → pm2 save`
+- [ ] El runtime corre bajo usuario sin privilegios dedicado `{{PRIV_USER}}` (NO root)
+- [ ] Sin instancias duplicadas del gestor de procesos bajo distintos usuarios (root vs app) que generen ambigüedad operativa — ver gotchas del perfil de stack si aplica
+- [ ] Secrets cargados desde `{{SECRETS_STORE}}` en runtime, nunca hardcodeados en el archivo de configuración del proceso
+- [ ] Estado del runtime persistido tras cambios y configurado para sobrevivir reboot (p.ej. `pm2 save` + `pm2 startup`, o unit de systemd `enabled`)
+- [ ] Rotación de logs del runtime configurada (max size + retención)
+- [ ] Auto-restart ante memory leak definido (p.ej. `max_memory_restart`, o `MemoryMax` en systemd)
+- [ ] Concurrencia evaluada según carga (cluster/instancias); sticky sessions si hay estado en memoria
+- [ ] App siempre detrás de `{{PROXY}}`, nunca el puerto del runtime expuesto directo a internet
+- [ ] Procedimiento de restart documentado y reproducible (incluye recarga de secretos desde `{{SECRETS_STORE}}`)
+> Comandos de ejemplo según `{{RUNTIME}}` (resolver desde el perfil de stack). Para el perfil Zentra (PM2), ver `profiles/zentra.md`.
 
 ---
 
-## 5. CLOUDFLARE
+## 5. CDN / WAF `{{CDN_WAF}}` (omitir si el proyecto no usa uno; ejemplos con Cloudflare)
 
-- [ ] Registros DNS críticos en modo "proxied" (naranja) — oculta IP de origen
-- [ ] SSL/TLS mode = **Full (Strict)** con cert de origen — NUNCA "Flexible" (deja claro el tramo Cloudflare↔origen)
+- [ ] Registros DNS críticos en modo "proxied" — oculta IP de origen
+- [ ] Si hay CDN/WAF con TLS: modo extremo-a-extremo (**Full Strict** o equivalente) con cert de origen — NUNCA terminación que deje el tramo CDN↔origen en claro
 - [ ] WAF managed rules activas; rate limiting en login/API
 - [ ] Bot fight mode / challenge según el caso
 - [ ] DNSSEC habilitado
-- [ ] API tokens de Cloudflare con permisos mínimos y rotables (incidente histórico Zentra: token CF expuesto — ver memoria)
+- [ ] API tokens del CDN/WAF con permisos mínimos y rotables
 - [ ] Page rules / cache rules no cacheando respuestas autenticadas o con datos personales
-- [ ] Origin no alcanzable por IP directa (firewall del VPS solo acepta rangos Cloudflare)
+- [ ] Origen no alcanzable por IP directa (firewall solo acepta rangos del CDN/WAF)
 
 ---
 
 ## 6. BACKUPS Y RECUPERACIÓN ANTE DESASTRES (DR)
 
 - [ ] Backup automatizado de PostgreSQL (`pg_dump`/`pg_basebackup`) con cron
-- [ ] Backups **cifrados** y almacenados **off-site** (ej: Cloudflare R2 — patrón Zeni Sprint 8)
+- [ ] Backups **cifrados** y almacenados **off-site** en `{{BACKUP_TARGET}}`
 - [ ] Retención definida (diaria 7d / semanal 4w / mensual 6m, o según criticidad)
 - [ ] **Restore probado** — un backup no verificado no es un backup. Agendar prueba de restore periódica
 - [ ] RPO y RTO definidos por proyecto (¿cuántos datos podemos perder? ¿cuánto downtime toleramos?)
-- [ ] Backup de volúmenes de Docker (uploads de Chatwoot, datos de n8n, `N8N_ENCRYPTION_KEY`)
-- [ ] Snapshots del VPS (Hetzner) configurados como capa adicional
+- [ ] Backup de volúmenes de contenedores (uploads, datos de servicios y sus claves de cifrado — sin la encryption key los datos quedan ilegibles)
+- [ ] Snapshots del host configurados como capa adicional (si el proveedor los ofrece)
 - [ ] Runbook de recuperación: pasos exactos para restaurar desde cero en un VPS nuevo
 - [ ] Las credenciales/secrets necesarios para restaurar NO viven solo en el servidor que podría perderse
 
@@ -117,7 +126,7 @@
 - [ ] Error tracking (Sentry) integrado en apps con DSN fuera de git
 - [ ] Healthchecks usan `127.0.0.1` explícito donde IPv6/localhost da problemas (gotcha TechBridge discovery bot)
 - [ ] Alertas de: caída de servicio, disco >80%, memoria alta, picos de 5xx, fallos de backup
-- [ ] Logs centralizados o al menos accesibles y rotados (Nginx, PM2, Docker, Postgres)
+- [ ] Logs centralizados o al menos accesibles y rotados (proxy, runtime, contenedores, DB)
 - [ ] Retención de logs ≥90 días; logs de auth y cambios críticos protegidos contra borrado
 - [ ] Logs sin secretos/PII en claro
 - [ ] Un humano recibe las alertas por un canal que realmente mira (WhatsApp/Slack/email), no solo un dashboard que nadie abre
@@ -127,7 +136,7 @@
 ## 8. RESILIENCIA Y CONTINUIDAD
 
 - [ ] Single points of failure identificados (¿un solo VPS? ¿una sola persona que sabe operarlo?)
-- [ ] Procedimiento ante caída del proveedor (Hetzner down): ¿cómo levanto en otro lado?
+- [ ] Procedimiento ante caída del proveedor de hosting: ¿cómo levanto en otro lado?
 - [ ] Dependencias externas con fallback o degradación elegante (WhatsApp API, LLM, pasarela down → no tumba toda la app)
 - [ ] Migraciones de BD backward-compatible (deploy nuevo no rompe instancia vieja durante el rollout)
 - [ ] Rollback ensayado: tag anterior + `pm2 restart` / `docker compose up` de la versión previa
@@ -139,7 +148,7 @@
 ```
 ## Infrastructure Audit Report — [Proyecto]
 **Servidor:** [proveedor / IP/hostname]
-**Componentes:** [VPS / Nginx / Docker / PM2 / Cloudflare / Chatwoot / n8n]
+**Componentes:** [resolver según stack detectado / `.sqa/profile.md`]
 **Método:** [comandos ejecutados / lectura de config / inferido]
 **Revisado:** [fecha]
 
@@ -152,8 +161,8 @@
 | Hardening VPS | OK/WARN/FAIL | CMD/CODE/INF |
 | Nginx | OK/WARN/FAIL | |
 | Runtime contenedores | OK/WARN/FAIL | |
-| PM2 | OK/WARN/FAIL | |
-| Cloudflare | OK/WARN/FAIL | |
+| Runtime `{{RUNTIME}}` | OK/WARN/FAIL | |
+| CDN/WAF `{{CDN_WAF}}` | OK/WARN/FAIL | |
 | Backups / DR | OK/WARN/FAIL | |
 | Monitoreo / Alertas | OK/WARN/FAIL | |
 | Resiliencia | OK/WARN/FAIL | |

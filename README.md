@@ -1,8 +1,8 @@
-# SQA Agent v7.0 — Software Quality Assurance · Enterprise Edition
+# SQA Agent v7.1 — Software Quality Assurance · Enterprise Edition
 
 > Agente especialista en calidad de software de nivel enterprise. Cubre el ciclo completo: **planifica la arquitectura ANTES del código, audita DURANTE el desarrollo y bloquea el deploy si algo es inseguro.**
 > Aplica OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, OWASP ASVS 5.0, ISO/IEC 25010:2023, ISO 27001:2022, ISO/IEC 42001 (IA), WCAG 2.2 AA + EAA, NIST SP 800-63B-4, NIST CSF 2.0, CIS Benchmarks, CMMI y normativa colombiana.
-> **17 checklists + base de datos de 24 brechas históricas**, cargados dinámicamente desde GitHub.
+> **17 checklists + base de datos de 24 brechas históricas + perfiles de stack + suite de evals**, cargados dinámicamente desde GitHub.
 
 Desarrollado por [Zeni by Zentra](https://github.com/Zeni-By-Zentra) · Jhonatan Ortega · [webzentra.com](https://webzentra.com)
 
@@ -23,6 +23,25 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 ```
 /sqa-agent [código | descripción | URL | patrón de archivos | flags]
 ```
+
+---
+
+## Perfiles de stack
+
+El agente **no asume un stack fijo**. Resuelve el perfil en este orden:
+
+1. **`.sqa/profile.md`** en el proyecto auditado → sobrescribe todo (recomendado por proyecto).
+2. **`--stack <nombre>`** → carga `profiles/<nombre>.md` (p.ej. `--stack zentra`).
+3. **Sin perfil** → `profiles/default.md` **auto-detecta** el stack (package.json, Dockerfile, compose, IaC, configs de proxy, CI) y aplica solo lo aplicable.
+
+Crear el perfil de un proyecto nuevo:
+
+```bash
+mkdir -p .sqa && cp ~/.claude/skills/sqa-agent/profiles/default.md .sqa/profile.md
+# edita .sqa/profile.md con tu runtime, proxy, CDN/WAF, DB, backups, etc.
+```
+
+**Regla de oro:** si una sección de checklist no aplica al stack (p.ej. PaaS gestionado sin reverse proxy propio), el agente la **omite — no la marca FAIL**.
 
 ---
 
@@ -55,6 +74,7 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 | `--diff --since main` | Audita cambios vs rama main/master. Para PR reviews completas. |
 | `--staged` | Audita solo el staging area (`git diff --cached`). Para pre-commit hooks. |
 | `--profile` | Alias de `--pagespeed` (compatibilidad v5). |
+| `--stack <perfil>` | Carga un perfil de stack (`profiles/<perfil>.md`, p.ej. `zentra`). Ver sección "Perfiles de stack". |
 | `--colombia` | Cumplimiento normativo colombiano: Ley 1581, Ley 527, Ley 1273, Ley 1266, Ley 1618, Circular 007 SIC + radar 2025-2026 (PL 043/2025 IA, PL 214/2025C). |
 | `--ai-audit` | Detecta patrones inseguros en código generado por IA (Copilot, ChatGPT, Cursor, Gemini). 26 verificaciones. |
 | `--learn` | Modo educativo: cada hallazgo incluye norma, riesgo concreto, corrección paso a paso y caso de estudio de brecha real. |
@@ -259,6 +279,12 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 ---
 
 ## Changelog
+
+### v7.1.0 (2026-06-12) — Parametrización + Evals
+- **Perfiles de stack** (`profiles/`): agnóstico de proveedor. `.sqa/profile.md` → `--stack <nombre>` → `profiles/default.md` (auto-detección). Incluye `profiles/zentra.md` con los gotchas del stack Zentra (ahora opt-in).
+- **Suite de evals** (`evals/evals.json`, 14 casos): detección de modo, estándares 2025/2026, parametrización y guardrails.
+- `infrastructure.md` reescrito con variables de perfil; `pre-dev-planning.md` deja de imponer un stack único.
+- Nuevo flag `--stack <perfil>`.
 
 ### v7.0.0 (2026-06-12) — Standards Refresh 2026
 - **OWASP Top 10:2025** (final ene-2026): checklist renumerado completo. Nuevos A03 Software Supply Chain Failures y A10 Mishandling of Exceptional Conditions. SSRF absorbido en A01.

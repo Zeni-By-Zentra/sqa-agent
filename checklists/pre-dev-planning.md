@@ -42,19 +42,24 @@ Para cada capa (frontend, backend, BD, hosting), evaluar candidatos con scoring 
 
 **Regla anti-resume-driven-development:** una tecnología nueva para el equipo solo entra si su score supera al stack conocido por ≥20% Y el proyecto tolera la curva de aprendizaje en el timeline.
 
-### 1.2 Stack de referencia Zentra (default — desviarse requiere justificación en la matriz)
+### 1.2 Stack de referencia (opinionado — solo aplica si el proyecto adopta un perfil)
 
-| Capa | Default | Cuándo desviarse |
-|------|---------|------------------|
+> Esta tabla es el stack por defecto del **perfil Zentra** (`profiles/zentra.md`). Para
+> proyectos con otro perfil o sin perfil, NO impongas estas tecnologías: usa la matriz de
+> decisión de stack (§2) partiendo de los requisitos reales. El valor del checklist es
+> **forzar la decisión documentada**, no prescribir un stack único.
+
+| Capa | Default del perfil Zentra | Cuándo desviarse |
+|------|---------------------------|------------------|
 | Frontend web app | Next.js 14+ App Router + TypeScript | SPA interna sin SEO → React + Vite |
 | Landing / sitio contenido | Next.js SSG o WordPress (si el cliente edita) | — |
-| API backend | Next.js API routes (monolito) o Node + Express (servicio separado) | Cargas CPU-bound → considerar worker separado |
-| Base de datos | PostgreSQL (node-postgres, queries parametrizadas) | Cache/colas → Redis. NUNCA MongoDB "porque es rápido empezar" |
-| Jobs / automatización | n8n (workflows de negocio) o node-cron/PM2 (jobs de app) | — |
+| API backend | Next.js API routes (monolito) o Node + Express (servicio separado) | Cargas CPU-bound → worker separado |
+| Base de datos | PostgreSQL (queries parametrizadas) | Cache/colas → Redis. No elijas un motor "porque es rápido empezar" sin evaluar consistencia |
+| Jobs / automatización | n8n (workflows de negocio) o node-cron/runtime (jobs de app) | — |
 | Mensajería cliente | Chatwoot self-hosted + WhatsApp Cloud API | — |
-| Deploy | Docker Compose o PM2 en Hetzner VPS, Nginx reverse proxy | Tráfico global estático → Vercel/Cloudflare Pages |
+| Deploy | Docker Compose / gestor de procesos en VPS + reverse proxy | Tráfico global estático → PaaS/edge (Vercel, Cloudflare Pages) |
 | DNS/CDN/WAF | Cloudflare (proxied) | — |
-| Monitoreo | Sentry + UptimeRobot + logs PM2/Docker | — |
+| Monitoreo | Sentry + uptime checks + logs del runtime | — |
 
 ### 1.3 Decisiones que SIEMPRE deben quedar escritas (formato ADR)
 
