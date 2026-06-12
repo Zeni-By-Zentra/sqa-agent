@@ -1,4 +1,4 @@
-# SQA Agent v7.1 — Software Quality Assurance · Enterprise Edition
+# SQA Agent v7.1.0 — Software Quality Assurance · Enterprise Edition
 
 > Agente especialista en calidad de software de nivel enterprise. Cubre el ciclo completo: **planifica la arquitectura ANTES del código, audita DURANTE el desarrollo y bloquea el deploy si algo es inseguro.**
 > Aplica OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, OWASP ASVS 5.0, ISO/IEC 25010:2023, ISO 27001:2022, ISO/IEC 42001 (IA), WCAG 2.2 AA + EAA, NIST SP 800-63B-4, NIST CSF 2.0, CIS Benchmarks, CMMI y normativa colombiana.
@@ -319,6 +319,70 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 - Clasificación `[AUTO-FIXABLE]` vs `[MANUAL]`
 
 Ver historial completo en [CHANGELOG.md](CHANGELOG.md).
+
+---
+
+## sqa-cli — Integración CI/CD
+
+`sqa-cli` es un bash wrapper que ejecuta el SQA Agent desde pipelines de CI/CD (GitHub Actions, GitLab CI, Jenkins, etc.) sin abrir Claude Code manualmente.
+
+### Instalación rápida
+
+```bash
+# Dar permisos de ejecución
+chmod +x ~/.claude/skills/sqa-agent/sqa-cli
+
+# Agregar al PATH (opcional)
+ln -s ~/.claude/skills/sqa-agent/sqa-cli /usr/local/bin/sqa-cli
+```
+
+### Uso desde terminal
+
+```bash
+# Auditoría rápida de un archivo
+sqa-cli --quick src/api/auth.ts
+
+# Auditar solo cambios del último commit
+sqa-cli --diff --quick
+
+# Auditar staging area antes de hacer commit
+sqa-cli --staged
+
+# Auditar código generado por IA con output JSON
+sqa-cli --ai-audit --report json src/
+
+# Verificar cumplimiento colombiano
+sqa-cli --colombia --learn src/
+```
+
+### Gate de calidad en GitHub Actions
+
+Agrega este step a tu pipeline para bloquear el merge si hay hallazgos críticos:
+
+```yaml
+- name: SQA Agent — Quality Gate
+  run: |
+    chmod +x ~/.claude/skills/sqa-agent/sqa-cli
+    sqa-cli --staged --fail-on-critical
+  # Retorna exit code 1 si encuentra hallazgos 🔴 Críticos
+  # El pipeline falla y bloquea el deploy automáticamente
+```
+
+### Flags disponibles
+
+| Flag | Descripción |
+|------|-------------|
+| `--quick` | Solo hallazgos críticos (máx. 5, ideal para pre-commit) |
+| `--full-audit` | Auditoría completa multi-área |
+| `--fix` | Aplica correcciones automáticas |
+| `--fix --dry-run` | Muestra correcciones sin aplicar |
+| `--diff` | Audita solo el último commit |
+| `--staged` | Audita solo el staging area |
+| `--colombia` | Verifica cumplimiento normativo colombiano |
+| `--ai-audit` | Audita código generado por IA |
+| `--report json` | Output JSON para CI/CD |
+| `--fail-on-critical` | Retorna `exit 1` si hay hallazgos 🔴 Críticos |
+| `--install` | Instala/actualiza el skill en `~/.claude/skills/` |
 
 ---
 
