@@ -138,3 +138,16 @@ Colombia tiene un ecosistema legal digital robusto. Este checklist cubre las nor
 - **RNBD (Registro Nacional de Bases de Datos):** [rnbd.sic.gov.co](https://rnbd.sic.gov.co)
 - **MinTIC — Normativa TIC:** [mintic.gov.co](https://www.mintic.gov.co)
 - **Secretaría del Senado (leyes):** [secretariasenado.gov.co](http://www.secretariasenado.gov.co)
+
+---
+
+## RADAR NORMATIVO 2025-2026 (proyectos de ley EN TRÁMITE — monitorear, aún NO exigibles)
+
+| Iniciativa | Estado | Impacto esperado en software |
+|-----------|--------|------------------------------|
+| **PL 043/2025 Senado — Regulación de IA** | Radicado jul-2025 (MinCiencias) | Desarrollo ético/responsable de IA: clasificación de riesgo, transparencia algorítmica. Si el proyecto usa IA (bots, scoring, perfilado), documentar desde ya: propósito del modelo, datos de entrenamiento, supervisión humana |
+| **PL Estatutario 214/2025C — Reforma Ley 1581** | Radicado 2025 (SIC + MinCiencias) | Moderniza habeas data hacia estándares GDPR: algoritmos explicables y sin sesgo, intervención humana en decisiones significativas, derechos reforzados del titular |
+| **Doc. SIC: datos personales + IA** | Publicado | Insumos técnicos del regulador — anticipa criterios de fiscalización sobre tratamiento de datos con IA |
+
+**Recomendación práctica:** diseñar hoy con el estándar de mañana — consent management granular,
+registro de decisiones automatizadas, y capacidad de explicar cualquier output de IA que afecte al titular.

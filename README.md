@@ -1,7 +1,7 @@
 # SQA Agent v6.0 — Software Quality Assurance · Enterprise Edition
 
 > Agente especialista en calidad de software de nivel enterprise. Cubre el ciclo completo: **planifica la arquitectura ANTES del código, audita DURANTE el desarrollo y bloquea el deploy si algo es inseguro.**
-> Aplica OWASP Top 10:2021, OWASP API:2023, OWASP LLM Top 10:2025, ISO/IEC 25010:2023, ISO 27001:2022, WCAG 2.1 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana.
+> Aplica OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, ISO/IEC 25010:2023, ISO 27001:2022, WCAG 2.2 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana.
 > **17 checklists + base de datos de 20 brechas históricas**, cargados dinámicamente desde GitHub.
 
 Desarrollado por [Zeni by Zentra](https://github.com/Zeni-By-Zentra) · Jhonatan Ortega · [webzentra.com](https://webzentra.com)
@@ -33,11 +33,11 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 | Flag | Fase | Qué hace |
 |------|------|----------|
 | `--plan` | Pre-desarrollo | Genera `ARCHITECTURE_PLAN.md` con 8 secciones: matriz de decisión de stack, modelo de seguridad + threat model STRIDE-lite, borrador de schema, contrato de API, estrategia de deployment, timeline PERT y matriz de riesgos. Termina con gate **Definition of Ready**. |
-| `--security` | Desarrollo / Pre-deploy | Auditoría de seguridad enterprise: OWASP Top 10:2021 ítem por ítem, vectores específicos del stack (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare), escaneo de dependencias. |
+| `--security` | Desarrollo / Pre-deploy | Auditoría de seguridad enterprise: OWASP Top 10:2025 ítem por ítem, vectores específicos del stack (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare), escaneo de dependencias. |
 | `--pentest` | Pre-deploy | Checklist de pen-test guiado en 6 fases con comandos reales (recon → auth → IDOR → inyección → lógica de negocio → infra). Solo sobre sistemas propios o con autorización escrita. |
 | `--breach-check` | Cualquiera | Audita el proyecto contra los patrones raíz de 20 brechas históricas documentadas (Equifax, Log4Shell, SolarWinds, Capital One, Heartbleed, Optus…). Responde: "¿este código repite el error que hundió a X?" |
 | `--pagespeed [URL]` | Pre-deploy | Core Web Vitals, presupuesto de bundle, imágenes, fuentes, caching/CDN, backend y PostgreSQL. Con URL: mediciones reales (3 muestras + promedio). Sin URL: análisis estático. |
-| `--a11y` | Desarrollo / Pre-deploy | Accesibilidad WCAG 2.1 AA completa (4 principios: perceivable, operable, understandable, robust) + plan de testing manual. |
+| `--a11y` | Desarrollo / Pre-deploy | Accesibilidad WCAG 2.2 AA completa (4 principios: perceivable, operable, understandable, robust) + plan de testing manual. |
 | `--infra` | Pre-deploy / Operación | Infraestructura: hardening de VPS Hetzner, Nginx, Docker runtime, PM2, Cloudflare, backups, monitoreo y DR. |
 | `--cicd` | Desarrollo | Pipeline: quality gates, builds reproducibles, secrets en CI, supply chain (acciones sin pin SHA), deploy y rollback. |
 
@@ -193,14 +193,14 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 
 | Checklist | Cuándo se activa | Normas aplicadas |
 |-----------|-----------------|-----------------|
-| [`security.md`](checklists/security.md) | `--security` / auditoría explícita | OWASP Top 10:2021 ítem por ítem + stack-specific (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare) + supply chain + pen-test + **OWASP LLM Top 10:2025** |
+| [`security.md`](checklists/security.md) | `--security` / auditoría explícita | OWASP Top 10:2025 ítem por ítem + stack-specific (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare) + supply chain + pen-test + **OWASP LLM Top 10:2025** |
 | [`references/breach-database.md`](references/breach-database.md) | `--breach-check` / `--learn` | 20 brechas históricas documentadas: Equifax, Log4Shell, SolarWinds, Capital One, Heartbleed, Colonial Pipeline, Uber, Optus, Marriott, Adobe, LinkedIn, Target, Codecov, event-stream, Tesla, MOVEit… |
 
 ### Checklists de Calidad de Código
 
 | Checklist | Cuándo se activa | Normas aplicadas |
 |-----------|-----------------|-----------------|
-| [`code-review.md`](checklists/code-review.md) | Código fuente (TS, JS, Python, Go, etc.) | ISO/IEC 25010:2023 + OWASP Top 10:2021 |
+| [`code-review.md`](checklists/code-review.md) | Código fuente (TS, JS, Python, Go, etc.) | ISO/IEC 25010:2023 + OWASP Top 10:2025 |
 | [`database.md`](checklists/database.md) | SQL, schema, migraciones, ORM models | ISO/IEC 25010 + PostgreSQL best practices + Ley 1581/2012 |
 | [`testing-strategy.md`](checklists/testing-strategy.md) | Test files, coverage, "revisar tests" | ISTQB + F.I.R.S.T + Pirámide de testing + Mutation testing |
 | [`api-quality.md`](checklists/api-quality.md) | Endpoints, rutas API, OpenAPI spec | OWASP API Security:2023 + REST Maturity Model + ISO/IEC 25010 |
@@ -212,7 +212,7 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 | Checklist | Cuándo se activa | Normas aplicadas |
 |-----------|-----------------|-----------------|
 | [`performance.md`](checklists/performance.md) | `--pagespeed`, "performance", URL | ISO/IEC 25010:2023 §4.2.1 + Core Web Vitals + RAIL Model + presupuesto de performance |
-| [`accessibility.md`](checklists/accessibility.md) | `--a11y`, HTML, componentes UI, ARIA | WCAG 2.1 AA + Resolución 1519/2016 Colombia |
+| [`accessibility.md`](checklists/accessibility.md) | `--a11y`, HTML, componentes UI, ARIA | WCAG 2.2 AA + Resolución 1519/2016 Colombia |
 | [`mobile.md`](checklists/mobile.md) | React Native, Flutter, Swift, Kotlin | OWASP Mobile Top 10:2024 + iOS HIG + Material Design 3 |
 | [`devops.md`](checklists/devops.md) | `--cicd`, Dockerfile, CI/CD, GitHub Actions | CI/CD best practices + Docker + ISO 27001:2022 |
 | [`quality-in-use.md`](checklists/quality-in-use.md) | "calidad en uso", usabilidad, experiencia de usuario | ISO 9126-4 + ISO 25010:2023 §4.1.4 + ISO 25022 |
@@ -257,7 +257,7 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 
 ## Changelog
 
-### v6.0.1 (2026-06-11)
+### v7.0.0 (2026-06-11)
 - **Nuevo:** Modo `--meta-audit` + checklist `meta-audit.md` (30 ítems, 6 secciones)
 - **Nuevo:** Modelo de permisos basado en riesgo para `--fix` (reemplaza regla "≤5 líneas")
 - **Nuevo:** Campo `Confianza` obligatorio en todos los hallazgos (ALTA/MEDIA/BAJA)

@@ -1,10 +1,10 @@
-# Security Audit Checklist — OWASP Top 10:2021 + OWASP API:2023 + ISO 27001:2022
+# Security Audit Checklist — OWASP Top 10:2025 + OWASP API:2023 + ISO 27001:2022
 
 > Auditoría de seguridad de nivel enterprise. Cada sección cruza con `references/breach-database.md`:
 > los controles no son arbitrarios, cada uno previene una brecha real documentada.
 > Marca cada hallazgo con su tipo de evidencia: **[CMD]** verificado por comando · **[CODE]** verificado leyendo código · **[INF]** inferido.
 
-**Estándares:** OWASP Top 10:2021, OWASP API Security Top 10:2023, OWASP ASVS 4.0, ISO/IEC 27001:2022, NIST SP 800-63B, CIS Benchmarks, NIST SP 800-53.
+**Estándares:** OWASP Top 10:2025 (final ene-2026), OWASP API Security Top 10:2023, OWASP ASVS 5.0 (may-2025), ISO/IEC 27001:2022, NIST SP 800-63B-4 (jul-2025), CIS Benchmarks, NIST SP 800-53.
 
 ## Normativa Colombiana de Seguridad
 
@@ -18,9 +18,14 @@
 
 ---
 
-# PARTE A — OWASP TOP 10:2021 (ítem por ítem)
+# PARTE A — OWASP TOP 10:2025 (ítem por ítem)
 
-## A01:2021 — Broken Access Control (la #1 más explotada)
+> Cambios clave 2021→2025: SSRF (ex-A10) absorbido en A01 · Security Misconfiguration sube #5→#2 ·
+> A03 nuevo: Software Supply Chain Failures (expande Vulnerable Components) ·
+> A10 nuevo: Mishandling of Exceptional Conditions · Crypto Failures baja #2→#4.
+> Metodología: 175K+ CVEs analizados, 248 CWEs mapeados.
+
+## A01:2025 — Broken Access Control (la #1 más explotada)
 
 - [ ] Toda acción server-side verifica permisos — el control NUNCA vive solo en el frontend (ocultar un botón ≠ autorización)
 - [ ] **IDOR:** cada request que recibe un ID verifica pertenencia al usuario/tenant antes de operar (`WHERE id = $1 AND tenant_id = $2`)
@@ -33,7 +38,48 @@
 - [ ] JWT: se verifica firma Y claims (`exp`, `aud`, `iss`); algoritmo fijado server-side (rechazar `alg: none`)
 > Precedente: **Optus 2022** (API sin auth + IDs secuenciales → 9.8M registros). **Parler 2021** (IDs secuenciales enumerables).
 
-## A02:2021 — Cryptographic Failures
+### A01 incluye ahora SSRF (ex-A10:2021)
+
+- [ ] Toda URL provista por el usuario que el servidor fetchea pasa por allowlist de dominios/IPs
+- [ ] Bloqueo de rangos internos: `127.0.0.0/8`, `10/8`, `172.16/12`, `192.168/16`, `169.254.169.254` (metadata cloud), IPv6 equivalentes
+- [ ] Redirecciones no saltan la validación (validar tras cada redirect)
+- [ ] Funciones de "import desde URL", avatar por URL, webhooks salientes, previews de link → todas validadas
+- [ ] Metadata endpoint del proveedor cloud no alcanzable desde la app
+> Precedente: **Capital One 2019** (SSRF → robo de credenciales del metadata service de AWS EC2 → 100M registros, multa $80M).
+
+---
+
+## A02:2025 — Security Misconfiguration
+
+- [ ] Sin credenciales/cuentas por defecto activas
+- [ ] Mensajes de error de producción genéricos — sin stack traces, rutas ni versiones expuestas
+- [ ] Headers de seguridad presentes: `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`/`frame-ancestors`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy`
+- [ ] Directory listing deshabilitado en Nginx; archivos `.env`, `.git`, `.bak` no servibles
+- [ ] Swagger/OpenAPI docs deshabilitados o autenticados en producción
+- [ ] `NODE_ENV=production`; source maps no expuestos públicamente
+- [ ] Servicios de admin (Adminer, n8n UI, Chatwoot) no expuestos a internet sin auth/VPN
+- [ ] Puertos innecesarios cerrados; bind a `127.0.0.1` para servicios internos (no `0.0.0.0`)
+> Precedente: incontables buckets/Elasticsearch/Mongo abiertos (Exactis 340M). **Tesla 2018** (consola Kubernetes sin password → cryptojacking).
+
+## A03:2025 — Software Supply Chain Failures (NUEVO — expande Vulnerable Components)
+
+> Alcance ampliado: no solo dependencias desactualizadas — todo el ecosistema: build systems,
+> registries, CI/CD, infraestructura de distribución y actualizaciones.
+
+
+- [ ] `npm audit` / `yarn audit` sin vulnerabilidades críticas/altas sin mitigar
+- [ ] Lockfile commiteado y respetado en CI (`npm ci`, no `npm install`)
+- [ ] Imágenes Docker escaneadas (Trivy/Grype); base images pinneadas por versión
+- [ ] Inventario de dependencias directas y transitivas; SBOM si el cliente lo requiere
+- [ ] Proceso de actualización: dependabot/renovate activo
+> Precedente: **Log4Shell 2021** (CVE-2021-44228, CVSS 10.0). **Equifax 2017** (Struts sin parchar 2 meses). **event-stream 2018** (dependencia npm troyanizada).
+- [ ] Acciones de CI de terceros pinneadas por SHA completo (no tags mutables)
+- [ ] Publicación a registries con 2FA/provenance (npm provenance, sigstore) cuando aplique
+- [ ] Monitoreo de typosquatting/dependency confusion en dependencias internas con scope
+- [ ] Scripts postinstall de dependencias auditados (vector event-stream/xz)
+> Precedente adicional: **xz-utils 2024** (CVE-2024-3094 — backdoor en liblzma plantado por mantenedor infiltrado durante 2 años; detectado por casualidad antes de llegar a producción masiva).
+
+## A04:2025 — Cryptographic Failures
 
 - [ ] TLS 1.2+ en TODOS los endpoints; HSTS con `includeSubDomains; preload`
 - [ ] Passwords con **bcrypt (cost≥12)**, **argon2id** o **scrypt** — NUNCA MD5/SHA1/SHA256 a secas
@@ -47,7 +93,7 @@
 - [ ] Rotación periódica de credenciales privilegiadas (≤90 días)
 > Precedente: **Heartbleed 2014** (CVE-2014-0160). **Adobe 2013** (passwords con 3DES-ECB → 153M). **LinkedIn 2012** (SHA1 sin sal → 117M).
 
-## A03:2021 — Injection
+## A05:2025 — Injection
 
 - [ ] **SQL:** SIEMPRE queries parametrizadas (`$1, $2` en node-postgres) — CERO concatenación de strings en SQL
 - [ ] Verificar activamente: `grep -rn "query(\`.*\${" src/` y similares
@@ -60,7 +106,7 @@
 - [ ] Headers de respuesta sanitizados (CRLF injection / response splitting)
 > Precedente: **Equifax 2017** (CVE-2017-5638, Struts RCE → 147M). **Heartland 2008** (SQLi → 130M tarjetas). **TalkTalk 2015** (SQLi).
 
-## A04:2021 — Insecure Design
+## A06:2025 — Insecure Design
 
 - [ ] Existe threat model de los flujos críticos (ver pre-dev-planning §2.4)
 - [ ] Límites de negocio aplicados: máximo de intentos, cuotas, límites de monto/cantidad
@@ -69,31 +115,13 @@
 - [ ] Rate limiting de diseño en operaciones costosas (envío de SMS/email, generación con LLM)
 > Precedente: robos de millas/puntos por lógica de negocio; fraude de cupones por validación client-side.
 
-## A05:2021 — Security Misconfiguration
-
-- [ ] Sin credenciales/cuentas por defecto activas
-- [ ] Mensajes de error de producción genéricos — sin stack traces, rutas ni versiones expuestas
-- [ ] Headers de seguridad presentes: `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`/`frame-ancestors`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy`
-- [ ] Directory listing deshabilitado en Nginx; archivos `.env`, `.git`, `.bak` no servibles
-- [ ] Swagger/OpenAPI docs deshabilitados o autenticados en producción
-- [ ] `NODE_ENV=production`; source maps no expuestos públicamente
-- [ ] Servicios de admin (Adminer, n8n UI, Chatwoot) no expuestos a internet sin auth/VPN
-- [ ] Puertos innecesarios cerrados; bind a `127.0.0.1` para servicios internos (no `0.0.0.0`)
-> Precedente: incontables buckets/Elasticsearch/Mongo abiertos (Exactis 340M). **Tesla 2018** (consola Kubernetes sin password → cryptojacking).
-
-## A06:2021 — Vulnerable & Outdated Components (ver Parte C)
-
-- [ ] `npm audit` / `yarn audit` sin vulnerabilidades críticas/altas sin mitigar
-- [ ] Lockfile commiteado y respetado en CI (`npm ci`, no `npm install`)
-- [ ] Imágenes Docker escaneadas (Trivy/Grype); base images pinneadas por versión
-- [ ] Inventario de dependencias directas y transitivas; SBOM si el cliente lo requiere
-- [ ] Proceso de actualización: dependabot/renovate activo
-> Precedente: **Log4Shell 2021** (CVE-2021-44228, CVSS 10.0). **Equifax 2017** (Struts sin parchar 2 meses). **event-stream 2018** (dependencia npm troyanizada).
-
-## A07:2021 — Identification & Authentication Failures
+## A07:2025 — Authentication Failures
 
 - [ ] MFA para cuentas privilegiadas y admin (ISO 27001 A.9.4.2)
-- [ ] Passwords ≥12 chars; check contra listas de filtradas (HIBP); sin reglas de composición absurdas ni rotación forzada (NIST SP 800-63B §5.1.1)
+- [ ] Passwords: mínimo 8 chars (SHALL) y ≥15 recomendado (SHOULD) cuando el password es el único factor; máximo permitido ≥64 chars (NIST SP 800-63B-4 jul-2025)
+- [ ] SIN reglas de composición (mayúscula+número+símbolo PROHIBIDAS como requisito) y SIN rotación periódica forzada (NIST SP 800-63B-4 — ahora "shall not")
+- [ ] Check contra listas de passwords filtradas/comprometidas (HIBP o equivalente)
+- [ ] MFA resistente a phishing como baseline para cuentas sensibles; passkeys/FIDO2 (incluidas syncable passkeys) califican AAL2 (NIST SP 800-63B-4)
 - [ ] Bloqueo tras 5-10 intentos + backoff exponencial o CAPTCHA
 - [ ] Tokens de sesión con CSPRNG, ≥128 bits
 - [ ] Regeneración de session ID tras login (anti session fixation)
@@ -104,7 +132,7 @@
 - [ ] Protección contra credential stuffing (rate limit por IP + por cuenta + detección de patrones)
 > Precedente: **Colonial Pipeline 2021** (VPN sin MFA + password filtrada → paró el combustible de la costa este de EEUU). **Uber 2022** (MFA fatigue / push bombing).
 
-## A08:2021 — Software & Data Integrity Failures
+## A08:2025 — Software & Data Integrity Failures
 
 - [ ] Dependencias de fuentes confiables; integridad verificada (lockfile con hashes)
 - [ ] CI/CD: acciones de terceros pinneadas por SHA, no por tag mutable
@@ -113,7 +141,7 @@
 - [ ] Webhooks entrantes con firma HMAC verificada + protección anti-replay (timestamp)
 > Precedente: **SolarWinds 2020** (build pipeline comprometido → backdoor SUNBURST firmado → 18.000 orgs, agencias federales). **Codecov 2021** (script CI alterado → robo de secrets). **3CX 2023** (cadena de suministro).
 
-## A09:2021 — Security Logging & Monitoring Failures
+## A09:2025 — Security Logging & Alerting Failures
 
 - [ ] Logs de auth (éxito/fallo) con timestamp, IP, user-agent, user id
 - [ ] Logs de cambios en datos críticos y acciones de admin (audit trail)
@@ -124,16 +152,22 @@
 - [ ] Existe forma de detectar una brecha en curso (no enterarse 6 meses después)
 > Precedente: **Marriott/Starwood 2018** (brecha sin detectar ~4 años, 383M). **Target 2013** (alertas FireEye ignoradas).
 
-## A10:2021 — Server-Side Request Forgery (SSRF)
+## A10:2025 — Mishandling of Exceptional Conditions (NUEVO)
 
-- [ ] Toda URL provista por el usuario que el servidor fetchea pasa por allowlist de dominios/IPs
-- [ ] Bloqueo de rangos internos: `127.0.0.0/8`, `10/8`, `172.16/12`, `192.168/16`, `169.254.169.254` (metadata cloud), IPv6 equivalentes
-- [ ] Redirecciones no saltan la validación (validar tras cada redirect)
-- [ ] Funciones de "import desde URL", avatar por URL, webhooks salientes, previews de link → todas validadas
-- [ ] Metadata endpoint del proveedor cloud no alcanzable desde la app
-> Precedente: **Capital One 2019** (SSRF → robo de credenciales del metadata service de AWS EC2 → 100M registros, multa $80M).
+> Fallas al prevenir, detectar o responder a condiciones inusuales: crashes, fail-open, estados inconsistentes.
 
----
+- [ ] Errores manejados con fail-closed: ante excepción en authz/validación, DENEGAR (nunca fail-open)
+- [ ] Catch blocks no tragan errores en silencio (`catch {}` vacío = hallazgo)
+- [ ] Mensajes de error al cliente sin stack traces, paths, versiones ni SQL (detalle solo en logs server-side)
+- [ ] Timeouts y circuit breakers en llamadas externas (HTTP, DB, colas) — sin esperas infinitas
+- [ ] Estados parciales revertidos: transacciones DB con rollback ante error a mitad de operación multi-paso
+- [ ] Validación de recursos antes de usar: null checks, archivos existentes, conexiones vivas
+- [ ] Graceful degradation definida: qué hace la app si cae un servicio dependiente (Redis, cola, API externa)
+- [ ] Health checks que detectan estados zombie (proceso vivo pero no funcional)
+- [ ] Manejo de señales del runtime (SIGTERM en contenedores → shutdown limpio, drenar conexiones)
+- [ ] Rollout de cambios de configuración/agentes con canary + rollback automático (no big-bang global)
+> Precedente: **CrowdStrike 2024** (update de contenido defectuoso sin canary → BSOD global, ~8.5M Windows, aviación/banca/hospitales parados — fallo de manejo de condición excepcional + despliegue big-bang, ~$10B en daños estimados).
+
 
 # PARTE B — VECTORES ESPECÍFICOS DEL STACK ZENTRA
 
@@ -316,7 +350,7 @@ docker history <imagen> --no-trunc | grep -iE 'PASSWORD|SECRET|KEY|TOKEN'  # sec
 
 ```
 ## Security Audit Report — [Aplicación]
-**Estándares:** OWASP Top 10:2021, OWASP API:2023, ISO/IEC 27001:2022, NIST SP 800-63B
+**Estándares:** OWASP Top 10:2025, OWASP API:2023, ISO/IEC 27001:2022, NIST SP 800-63B-4
 **Stack auditado:** [Next.js / Node / PostgreSQL / Docker / Nginx / PM2 / Chatwoot / n8n / Cloudflare]
 **Alcance:** [endpoints/módulos/infra revisados]
 **Método:** [code-read / comandos ejecutados / pentest autorizado]
@@ -331,16 +365,16 @@ docker history <imagen> --no-trunc | grep -iE 'PASSWORD|SECRET|KEY|TOKEN'  # sec
 ### Puntuación de Seguridad
 | Categoría | Estado | Evidencia |
 |-----------|--------|-----------|
-| A01 Access Control | OK/WARN/FAIL | CMD/CODE/INF |
-| A02 Cryptographic | OK/WARN/FAIL | |
-| A03 Injection | OK/WARN/FAIL | |
-| A04 Insecure Design | OK/WARN/FAIL | |
-| A05 Misconfiguration | OK/WARN/FAIL | |
-| A06 Vulnerable Components | OK/WARN/FAIL | |
+| A01 Access Control (incl. SSRF) | OK/WARN/FAIL | CMD/CODE/INF |
+| A02 Misconfiguration | OK/WARN/FAIL | |
+| A03 Supply Chain | OK/WARN/FAIL | |
+| A04 Cryptographic | OK/WARN/FAIL | |
+| A05 Injection | OK/WARN/FAIL | |
+| A06 Insecure Design | OK/WARN/FAIL | |
 | A07 Auth Failures | OK/WARN/FAIL | |
 | A08 Integrity Failures | OK/WARN/FAIL | |
-| A09 Logging/Monitoring | OK/WARN/FAIL | |
-| A10 SSRF | OK/WARN/FAIL | |
+| A09 Logging/Alerting | OK/WARN/FAIL | |
+| A10 Exceptional Conditions | OK/WARN/FAIL | |
 | Stack-specific (B1-B9) | OK/WARN/FAIL | |
 | Dependencies / Supply chain | OK/WARN/FAIL | |
 
