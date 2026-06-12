@@ -1,8 +1,8 @@
-# SQA Agent v6.0 — Software Quality Assurance · Enterprise Edition
+# SQA Agent v7.0 — Software Quality Assurance · Enterprise Edition
 
 > Agente especialista en calidad de software de nivel enterprise. Cubre el ciclo completo: **planifica la arquitectura ANTES del código, audita DURANTE el desarrollo y bloquea el deploy si algo es inseguro.**
-> Aplica OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, ISO/IEC 25010:2023, ISO 27001:2022, WCAG 2.2 AA, NIST SP 800-63B, CIS Benchmarks, CMMI y normativa colombiana.
-> **17 checklists + base de datos de 20 brechas históricas**, cargados dinámicamente desde GitHub.
+> Aplica OWASP Top 10:2025, OWASP API:2023, OWASP LLM Top 10:2025, OWASP ASVS 5.0, ISO/IEC 25010:2023, ISO 27001:2022, ISO/IEC 42001 (IA), WCAG 2.2 AA + EAA, NIST SP 800-63B-4, NIST CSF 2.0, CIS Benchmarks, CMMI y normativa colombiana.
+> **17 checklists + base de datos de 24 brechas históricas**, cargados dinámicamente desde GitHub.
 
 Desarrollado por [Zeni by Zentra](https://github.com/Zeni-By-Zentra) · Jhonatan Ortega · [webzentra.com](https://webzentra.com)
 
@@ -28,14 +28,14 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 
 ## Modos disponibles
 
-### Modos de ciclo de vida (Enterprise — v6.0)
+### Modos de ciclo de vida (Enterprise — v7.0)
 
 | Flag | Fase | Qué hace |
 |------|------|----------|
 | `--plan` | Pre-desarrollo | Genera `ARCHITECTURE_PLAN.md` con 8 secciones: matriz de decisión de stack, modelo de seguridad + threat model STRIDE-lite, borrador de schema, contrato de API, estrategia de deployment, timeline PERT y matriz de riesgos. Termina con gate **Definition of Ready**. |
 | `--security` | Desarrollo / Pre-deploy | Auditoría de seguridad enterprise: OWASP Top 10:2025 ítem por ítem, vectores específicos del stack (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare), escaneo de dependencias. |
 | `--pentest` | Pre-deploy | Checklist de pen-test guiado en 6 fases con comandos reales (recon → auth → IDOR → inyección → lógica de negocio → infra). Solo sobre sistemas propios o con autorización escrita. |
-| `--breach-check` | Cualquiera | Audita el proyecto contra los patrones raíz de 20 brechas históricas documentadas (Equifax, Log4Shell, SolarWinds, Capital One, Heartbleed, Optus…). Responde: "¿este código repite el error que hundió a X?" |
+| `--breach-check` | Cualquiera | Audita el proyecto contra los patrones raíz de 24 brechas históricas documentadas (Equifax, Log4Shell, SolarWinds, Capital One, xz-utils, Change Healthcare, Snowflake, CrowdStrike…). Responde: "¿este código repite el error que hundió a X?" |
 | `--pagespeed [URL]` | Pre-deploy | Core Web Vitals, presupuesto de bundle, imágenes, fuentes, caching/CDN, backend y PostgreSQL. Con URL: mediciones reales (3 muestras + promedio). Sin URL: análisis estático. |
 | `--a11y` | Desarrollo / Pre-deploy | Accesibilidad WCAG 2.2 AA completa (4 principios: perceivable, operable, understandable, robust) + plan de testing manual. |
 | `--infra` | Pre-deploy / Operación | Infraestructura: hardening de VPS Hetzner, Nginx, Docker runtime, PM2, Cloudflare, backups, monitoreo y DR. |
@@ -55,7 +55,7 @@ git clone https://github.com/Zeni-By-Zentra/sqa-agent ~/.claude/skills/sqa-agent
 | `--diff --since main` | Audita cambios vs rama main/master. Para PR reviews completas. |
 | `--staged` | Audita solo el staging area (`git diff --cached`). Para pre-commit hooks. |
 | `--profile` | Alias de `--pagespeed` (compatibilidad v5). |
-| `--colombia` | Cumplimiento normativo colombiano: Ley 1581, Ley 527, Ley 1273, Ley 1266, Ley 1618, Circular 007 SIC. |
+| `--colombia` | Cumplimiento normativo colombiano: Ley 1581, Ley 527, Ley 1273, Ley 1266, Ley 1618, Circular 007 SIC + radar 2025-2026 (PL 043/2025 IA, PL 214/2025C). |
 | `--ai-audit` | Detecta patrones inseguros en código generado por IA (Copilot, ChatGPT, Cursor, Gemini). 26 verificaciones. |
 | `--learn` | Modo educativo: cada hallazgo incluye norma, riesgo concreto, corrección paso a paso y caso de estudio de brecha real. |
 | `--community` | Badge de cumplimiento SQA Agent para el README del proyecto (niveles Oro/Plata/Bronce). |
@@ -151,7 +151,7 @@ Reemplaza la regla anterior "≤ 5 líneas" por un modelo orientado al riesgo re
 
 **Antes de aplicar:** construye el impact graph (mapea importadores con `grep -r`). Si >10 importadores: advertencia explícita.
 
-**Junto a cada corrección:** genera test stub `describe/it` esqueleto marcado `// TODO — generado por SQA Agent v6`.
+**Junto a cada corrección:** genera test stub `describe/it` esqueleto marcado `// TODO — generado por SQA Agent v7`.
 
 **Tras aplicar:** re-audita archivos modificados + importadores directos. Regresiones como `⚠️ REGRESIÓN POST-FIX`.
 
@@ -181,7 +181,7 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 
 17 checklists + 1 base de referencias. Se detectan automáticamente y se cargan desde GitHub en tiempo de ejecución.
 
-### Checklists Enterprise (v6.0)
+### Checklists Enterprise (v7.0)
 
 | Checklist | Modo | Descripción |
 |-----------|------|-------------|
@@ -194,7 +194,7 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 | Checklist | Cuándo se activa | Normas aplicadas |
 |-----------|-----------------|-----------------|
 | [`security.md`](checklists/security.md) | `--security` / auditoría explícita | OWASP Top 10:2025 ítem por ítem + stack-specific (Next.js, Node, PostgreSQL, Docker, Nginx, PM2, Chatwoot, n8n, Cloudflare) + supply chain + pen-test + **OWASP LLM Top 10:2025** |
-| [`references/breach-database.md`](references/breach-database.md) | `--breach-check` / `--learn` | 20 brechas históricas documentadas: Equifax, Log4Shell, SolarWinds, Capital One, Heartbleed, Colonial Pipeline, Uber, Optus, Marriott, Adobe, LinkedIn, Target, Codecov, event-stream, Tesla, MOVEit… |
+| [`references/breach-database.md`](references/breach-database.md) | `--breach-check` / `--learn` | 24 brechas históricas documentadas: Equifax, Log4Shell, SolarWinds, Capital One, Colonial Pipeline, Uber, Optus, Codecov, MOVEit, xz-utils, Change Healthcare, Snowflake, CrowdStrike… |
 
 ### Checklists de Calidad de Código
 
@@ -231,18 +231,21 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 | Norma | Versión | Área |
 |-------|---------|------|
 | ISO/IEC 25010 | 2023 | Modelo de calidad del producto software |
-| OWASP Top 10 | 2021 | Seguridad aplicaciones web |
+| OWASP Top 10 | 2025 (final ene-2026) | Seguridad aplicaciones web |
+| OWASP ASVS | 5.0 (2025) | Verificación de seguridad de aplicaciones |
 | OWASP API Security | 2023 | Seguridad de APIs REST/GraphQL |
 | OWASP Mobile Top 10 | 2024 | Seguridad apps móviles |
 | OWASP LLM Top 10 | 2025 | Seguridad en aplicaciones con LLMs |
 | ISO/IEC 27001 | 2022 | Gestión de seguridad de la información |
-| NIST SP 800-63B | 2017 | Autenticación y gestión de identidades |
+| NIST SP 800-63B | Rev. 4 (2025) | Autenticación: passwords 8/15+, passkeys AAL2, sin rotación forzada |
+| NIST CSF | 2.0 (2024) | Marco de ciberseguridad — incluye función GOVERN |
+| ISO/IEC 42001 | 2023 | Sistema de gestión de IA (gobernanza de modelos) |
 | NIST SP 800-53 | Rev. 5 | Controles de seguridad y privacidad |
 | CIS Benchmarks | 2024 | Hardening de sistemas e infraestructura |
-| WCAG | 2.1 AA | Accesibilidad web (W3C) |
+| WCAG | 2.2 AA | Accesibilidad web (W3C) — baseline EN 301 549 / EAA (UE, jun-2025) |
 | CMMI DEV | 2.0 | Madurez de procesos de desarrollo |
 | ISTQB | — | Testing: pirámide, F.I.R.S.T, mutation testing |
-| PCI DSS | 4.0 | Seguridad en pagos con tarjeta |
+| PCI DSS | 4.0.1 | Seguridad en pagos con tarjeta |
 | Core Web Vitals | 2024 | Performance web (LCP, INP, CLS, TTFB) |
 | RAIL Model | — | Performance UX (Response, Animation, Idle, Load) |
 | iOS HIG | 2024 | Human Interface Guidelines (Apple) |
@@ -257,7 +260,15 @@ Cada hallazgo incluye: **norma citada**, **campo Confianza** (ALTA/MEDIA/BAJA), 
 
 ## Changelog
 
-### v7.0.0 (2026-06-11)
+### v7.0.0 (2026-06-12) — Standards Refresh 2026
+- **OWASP Top 10:2025** (final ene-2026): checklist renumerado completo. Nuevos A03 Software Supply Chain Failures y A10 Mishandling of Exceptional Conditions. SSRF absorbido en A01.
+- **NIST SP 800-63B-4** (jul-2025): passwords mín 8 / recomendado 15 chars, prohibidas reglas de composición y rotación forzada, passkeys/FIDO2 = AAL2.
+- **WCAG 2.2 AA + EAA**: 6 criterios nuevos integrados, 4.1.1 Parser eliminado, contexto European Accessibility Act (exigible UE jun-2025).
+- **Breach database 20→24**: xz-utils, Change Healthcare, Snowflake, CrowdStrike (2024).
+- **Radar normativo Colombia**: PL 043/2025 (IA) y PL 214/2025C (reforma Ley 1581) en trámite.
+- **ISO/IEC 42001 + NIST CSF 2.0** en `--ai-audit` · **ASVS 5.0** como estándar de verificación.
+
+### v6.0.1 (2026-06-11)
 - **Nuevo:** Modo `--meta-audit` + checklist `meta-audit.md` (30 ítems, 6 secciones)
 - **Nuevo:** Modelo de permisos basado en riesgo para `--fix` (reemplaza regla "≤5 líneas")
 - **Nuevo:** Campo `Confianza` obligatorio en todos los hallazgos (ALTA/MEDIA/BAJA)
