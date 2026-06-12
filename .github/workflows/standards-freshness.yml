@@ -1,0 +1,82 @@
+name: Standards Freshness Review
+
+# Recordatorio trimestral para mantener el SQA Agent al día con las normas vigentes.
+# Cada trimestre abre un issue con el checklist de --meta-audit. No requiere secretos.
+#
+# Por qué un workflow programado y no un cron de sesión:
+# un cron de sesión (CronCreate) es efímero y expira a los 7 días — no sirve para algo
+# trimestral. GitHub Actions corre en la nube en cron real, sobrevive indefinidamente y
+# puede abrir issues/PRs sin depender de ninguna máquina encendida.
+
+on:
+  schedule:
+    # 09:07 UTC el día 1 de enero, abril, julio y octubre (trimestral).
+    # Minuto off-:00 para no coincidir con el pico de crons del planeta.
+    - cron: "7 9 1 1,4,7,10 *"
+  workflow_dispatch: {}   # permite dispararlo a mano desde la pestaña Actions
+
+permissions:
+  issues: write
+
+jobs:
+  open-review-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Crear issue de revisión de normas
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const quarter = `${now_year()}-Q${quarter_of(new Date())}`;
+            function now_year(){ return new Date().getUTCFullYear(); }
+            function quarter_of(d){ return Math.floor(d.getUTCMonth()/3)+1; }
+
+            const title = `🔍 Revisión de vigencia de normas — ${quarter}`;
+
+            // Evita duplicados si ya existe un issue abierto de este trimestre
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'standards-review'
+            });
+            if (existing.data.some(i => i.title === title)) {
+              core.info('Ya existe el issue de este trimestre; no se duplica.');
+              return;
+            }
+
+            const body = [
+              '> Recordatorio automático trimestral. Corre `/sqa-agent --meta-audit` y verifica',
+              '> que cada norma siga vigente. Marca cada ítem y enlaza la fuente al cerrar.',
+              '',
+              '## Cómo ejecutar',
+              '```',
+              '/sqa-agent --meta-audit',
+              '```',
+              'El modo audita los propios checklists del repo: vigencia de normas, cobertura,',
+              'calidad de ítems y falsos positivos. Aplica los cambios en una rama y abre PR.',
+              '',
+              '## Checklist de normas a verificar',
+              '',
+              '- [ ] **OWASP Top 10** — ¿sigue 2025 como la última? (próxima esperada ~2028)',
+              '- [ ] **OWASP API Security Top 10** — ¿sigue 2023?',
+              '- [ ] **OWASP ASVS** — ¿sigue 5.0?',
+              '- [ ] **OWASP LLM Top 10** — ¿hay revisión posterior a 2025?',
+              '- [ ] **NIST SP 800-63B** — ¿sigue Rev. 4 (2025) la vigente?',
+              '- [ ] **NIST CSF** — ¿sigue 2.0?',
+              '- [ ] **WCAG** — ¿sigue 2.2 AA? (vigilar WCAG 3.0)',
+              '- [ ] **ISO/IEC 25010 / 27001 / 42001** — ¿sin nueva edición?',
+              '- [ ] **PCI DSS** — ¿sigue 4.0.1?',
+              '- [ ] **CIS Benchmarks** — ¿versiones de Docker/Nginx/Linux actuales?',
+              '- [ ] **Breach database** — ¿agregar brechas relevantes del último trimestre?',
+              '- [ ] **Radar normativo Colombia** — estado de PL 043/2025 (IA) y PL 214/2025C',
+              '      (¿sancionados? mover de "en trámite" a vigente y crear checklist si aplica)',
+              '',
+              '## Al terminar',
+              '- [ ] Bump de versión en `SKILL.md`, `README.md`, `CHANGELOG.md`, `VERSIONS.md` si hubo cambios',
+              '- [ ] Re-correr evals acopladas a versiones de norma (casos 2, 3, 4, 6, 14 en `evals/evals.json`)',
+              '- [ ] Cerrar este issue enlazando el PR'
+            ].join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title, body, labels: ['standards-review', 'maintenance']
+            });
+            core.info(`Issue creado: ${title}`);

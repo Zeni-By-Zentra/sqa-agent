@@ -322,6 +322,17 @@ Ver historial completo en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
+## Mantenimiento de vigencia de normas
+
+Las normas caducan (OWASP cambia cada ~3-4 años, NIST/WCAG/ISO revisan periódicamente). Para que el agente no quede desactualizado:
+
+- **`--meta-audit`** audita los propios checklists del repo (vigencia, cobertura, falsos positivos).
+- El workflow [`.github/workflows/standards-freshness.yml`](.github/workflows/standards-freshness.yml) abre **automáticamente un issue cada trimestre** (1 ene/abr/jul/oct) con el checklist de normas a verificar. No requiere secretos ni servidor encendido — corre en GitHub Actions. También se puede disparar a mano desde la pestaña *Actions* → *Standards Freshness Review* → *Run workflow*.
+
+Al recibir el issue: corre `/sqa-agent --meta-audit`, aplica los cambios en una rama, re-corre las evals acopladas a versiones de norma y abre PR.
+
+---
+
 ## Licencia
 
 **MIT License** © 2026 Zentra · Jhonatan Ortega · webzentra.com
